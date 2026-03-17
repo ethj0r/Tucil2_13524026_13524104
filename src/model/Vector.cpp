@@ -18,7 +18,7 @@ float length(Vec a){
 
 Vec normalize(Vec a){
     float len = length(a);
-    if(len < 1e-6f){ // batas toleransi float
+    if(len < 1e-6f){
         return {0.0f, 0.0f, 0.0f};
     }
 
