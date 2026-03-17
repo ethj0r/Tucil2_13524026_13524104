@@ -6,32 +6,15 @@ struct BoundingBox {
     Vec min, max;
 };
 
-/**
- * @brief Mengembalikan nilai terkecil dari 3 bilangan.
- * @param a Bilangan 1.
- * @param b Bilangan 2.
- * @param c Bilangan 3.
- * @return Nilai minimum dari a, b, dan c.
- */
 float min3(float a, float b, float c);
-
-/**
- * @brief Mengembalikan nilai terbesar dari 3 bilangan.
- * @param a Bilangan 1.
- * @param b Bilangan 2.
- * @param c Bilangan 3.
- * @return Nilai maksimum dari a, b, dan c.
- */
 float max3(float a, float b, float c);
 
 /**
- * @brief Menguji overlap proyeksi segitiga dan box pada satu sumbu.
- * @param axis Sumbu proyeksi yang diuji pada pemisahan SAT (Separating Axis Theorem).
- * @param v1 Titik 1 segitiga relatif terhadap pusat box.
- * @param v2 Titik 2 segitiga relatif terhadap pusat box.
- * @param v3 Titik 3 segitiga relatif terhadap pusat box.
- * @param halfSize Setengah ukuran box.
- * @return true jika proyeksi segitiga dan box overlap pada sumbu tersebut.
+ * @brief test overlap proyeksi segitiga dan box pada satu sumbu
+ * @param axis Sumbu proyeksi yang diuji pada pemisahan SAT (Separating Axis Theorem)
+ * @param v1, v2, v3 titik 1 2 3 segitiga relatif terhadap pusat box
+ * @param halfSize 1/2 ukuran box
+ * @return true kl proyeksi segitiga dan box overlap pada sumbu tersebut
  */
 bool axisTest(const Vec& axis, const Vec& v1, const Vec& v2, const Vec& v3, const Vec& halfSize);
 
@@ -48,6 +31,13 @@ BoundingBox triangleBox(const Triangle& tri);
  * @return vec titik tengah = (min + max) / 2.
  */
 Vec centerBox(const BoundingBox& box);
+
+/**
+ * @brief ngebagi bounding box jadi 8 sub-box (octant)
+ * @param box bounding box yg akan dibagi
+ * @return std::vector<BoundingBox> isinya 8 sub-box
+ */
+std::vector<BoundingBox> splitBox(const BoundingBox& box);
 
 /**
  * @brief Cek apakah titik berada di dalam bounding box (inclusive).

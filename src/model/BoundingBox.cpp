@@ -60,6 +60,22 @@ Vec centerBox(const BoundingBox& box) {
     return scalarMul(add(box.min, box.max), 0.5f);
 }
 
+std::vector<BoundingBox> splitBox(const BoundingBox& box) {
+    Vec mid = centerBox(box);
+    std::vector<BoundingBox> children(8);
+
+    for (int i=0; i<8; i++) {
+        children[i].min.x = (i & 1) ? mid.x : box.min.x;
+        children[i].min.y = (i & 2) ? mid.y : box.min.y;
+        children[i].min.z = (i & 4) ? mid.z : box.min.z;
+        children[i].max.x = (i & 1) ? box.max.x : mid.x;
+        children[i].max.y = (i & 2) ? box.max.y : mid.y;
+        children[i].max.z = (i & 4) ? box.max.z : mid.z;
+    }
+
+    return children;
+}
+
 bool containsPoint(const BoundingBox& box, const Vec& point) {
     return point.x >= box.min.x && point.x <= box.max.x && point.y >= box.min.y && point.y <= box.max.y && 
            point.z >= box.min.z && point.z <= box.max.z;
