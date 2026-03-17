@@ -7,7 +7,7 @@ struct Triangle {
 };
 
 // center segitiga
-Vec center(const Triangle& a);
+Vec centerTri(const Triangle& a);
 
 // normal segitiga
-Vec normal(const Triangle& a);
+Vec normalTri(const Triangle& a);

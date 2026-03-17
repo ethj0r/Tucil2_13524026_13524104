@@ -56,8 +56,8 @@ BoundingBox triangleBox(const Triangle& tri) {
     return box;
 }
 
-Vec center(const BoundingBox& box) {
-    return scalarMul(plus(box.min, box.max), 0.5f);
+Vec centerBox(const BoundingBox& box) {
+    return scalarMul(add(box.min, box.max), 0.5f);
 }
 
 bool containsPoint(const BoundingBox& box, const Vec& point) {
@@ -80,16 +80,16 @@ bool intersectsTriangleBox(const Triangle& tri, const BoundingBox& box) {
         return false;
     }
 
-    Vec boxCenter = center(box);
-    Vec halfSize = scalarMul(minus(box.max, box.min), 0.5f);
+    Vec boxCenter = centerBox(box);
+    Vec halfSize = scalarMul(subtract(box.max, box.min), 0.5f);
 
     // Normalisasi koordinat
-    Vec v1 = minus(tri.v1, boxCenter);
-    Vec v2 = minus(tri.v2, boxCenter);
-    Vec v3 = minus(tri.v3, boxCenter);
+    Vec v1 = subtract(tri.v1, boxCenter);
+    Vec v2 = subtract(tri.v2, boxCenter);
+    Vec v3 = subtract(tri.v3, boxCenter);
 
     // vektor tepi segitiga
-    Vec edges[3] = {minus(v2, v1), minus(v3, v2), minus(v1, v3)};
+    Vec edges[3] = {subtract(v2, v1), subtract(v3, v2), subtract(v1, v3)};
 
     // vektor satuan
     Vec boxAxes[3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}; 

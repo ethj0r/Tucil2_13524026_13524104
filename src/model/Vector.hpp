@@ -8,10 +8,10 @@ struct Vec {
 };
 
 // operator plus
-Vec plus(Vec a, Vec b);
+Vec add(Vec a, Vec b);
 
 // operator minus
-Vec minus(Vec a, Vec b);
+Vec subtract(Vec a, Vec b);
 
 // operator scalar multiply
 Vec scalarMul(Vec a, float b);

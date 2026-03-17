@@ -40,3 +40,10 @@ bool loadObj(const string& filePath, Mesh& outMesh);
  * @return void
  */
 void buildMeshBounds(Mesh& mesh);
+
+/**
+ * @brief Membuat bounding box menjadi kubus
+ * @param mesh Mesh yang akan dibuat menjadi bentuk kubus
+ * @return void
+ */
+void makeBoundsCubic(Mesh& mesh);

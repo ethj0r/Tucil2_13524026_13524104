@@ -5,11 +5,40 @@ struct BoundingBox {
     Vec min, max;
 };
 
+/**
+ * @brief Mengembalikan nilai terkecil dari 3 bilangan.
+ * @param a Bilangan 1.
+ * @param b Bilangan 2.
+ * @param c Bilangan 3.
+ * @return Nilai minimum dari a, b, dan c.
+ */
+float min3(float a, float b, float c);
+
+/**
+ * @brief Mengembalikan nilai terbesar dari 3 bilangan.
+ * @param a Bilangan 1.
+ * @param b Bilangan 2.
+ * @param c Bilangan 3.
+ * @return Nilai maksimum dari a, b, dan c.
+ */
+float max3(float a, float b, float c);
+
+/**
+ * @brief Menguji overlap proyeksi segitiga dan box pada satu sumbu.
+ * @param axis Sumbu proyeksi yang diuji pada pemisahan SAT (Separating Axis Theorem).
+ * @param v1 Titik 1 segitiga relatif terhadap pusat box.
+ * @param v2 Titik 2 segitiga relatif terhadap pusat box.
+ * @param v3 Titik 3 segitiga relatif terhadap pusat box.
+ * @param halfSize Setengah ukuran box.
+ * @return true jika proyeksi segitiga dan box overlap pada sumbu tersebut.
+ */
+bool axisTest(const Vec& axis, const Vec& v1, const Vec& v2, const Vec& v3, const Vec& halfSize);
+
 // buat bounding box yang contain segitiga
 BoundingBox triangleBox(const Triangle& tri);
 
 // titik tengah box
-Vec center(const BoundingBox& box);
+Vec centerBox(const BoundingBox& box);
 
 // cek apakah titik berada di dalam box
 bool containsPoint(const BoundingBox& box, const Vec& point);
