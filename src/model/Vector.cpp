@@ -1,10 +1,10 @@
 #include "Vector.hpp"
 
-Vec plus(Vec a, Vec b){
+Vec add(Vec a, Vec b){
     return {a.x + b.x, a.y + b.y, a.z + b.z};
 }
 
-Vec minus(Vec a, Vec b){
+Vec subtract(Vec a, Vec b){
     return {a.x - b.x, a.y - b.y, a.z - b.z};
 }
 

@@ -56,56 +56,8 @@ BoundingBox triangleBox(const Triangle& tri) {
     return box;
 }
 
-BoundingBox meshBox(const std::vector<Vec>& vertices) {
-    BoundingBox box;
-    box.min = {1e30f, 1e30f, 1e30f};
-    box.max = {-1e30f, -1e30f, -1e30f};
-
-    for (const Vec& v : vertices) {
-        if (v.x<box.min.x) box.min.x = v.x;
-        if (v.y<box.min.y) box.min.y = v.y;
-        if (v.z<box.min.z) box.min.z = v.z;
-        if (v.x>box.max.x) box.max.x = v.x;
-        if (v.y>box.max.y) box.max.y = v.y;
-        if (v.z>box.max.z) box.max.z = v.z;
-    }
-
-    return box;
-}
-
-BoundingBox normalizeBox(const BoundingBox& box) {
-    Vec c = scalarMul(plus(box.min, box.max), 0.5f);
-    float dx = box.max.x-box.min.x;
-    float dy = box.max.y-box.min.y;
-    float dz = box.max.z-box.min.z;
-
-    float maxSide = max3(dx, dy, dz);
-    float half = maxSide*0.5f;
-
-    BoundingBox cube;
-    cube.min = {c.x-half, c.y-half, c.z-half};
-    cube.max = {c.x+half, c.y+half, c.z+half};
-    return cube;
-}
-
-std::vector<BoundingBox> splitBox(const BoundingBox& box) {
-    Vec mid = scalarMul(plus(box.min, box.max), 0.5f);
-    std::vector<BoundingBox> children(8);
-
-    for (int i=0; i<8; i++) {
-        children[i].min.x = (i & 1) ? mid.x : box.min.x;
-        children[i].min.y = (i & 2) ? mid.y : box.min.y;
-        children[i].min.z = (i & 4) ? mid.z : box.min.z;
-        children[i].max.x = (i & 1) ? box.max.x : mid.x;
-        children[i].max.y = (i & 2) ? box.max.y : mid.y;
-        children[i].max.z = (i & 4) ? box.max.z : mid.z;
-    }
-
-    return children;
-}
-
-Vec center(const BoundingBox& box) {
-    return scalarMul(plus(box.min, box.max), 0.5f);
+Vec centerBox(const BoundingBox& box) {
+    return scalarMul(add(box.min, box.max), 0.5f);
 }
 
 bool containsPoint(const BoundingBox& box, const Vec& point) {
@@ -128,16 +80,16 @@ bool intersectsTriangleBox(const Triangle& tri, const BoundingBox& box) {
         return false;
     }
 
-    Vec boxCenter = center(box);
-    Vec halfSize = scalarMul(minus(box.max, box.min), 0.5f);
+    Vec boxCenter = centerBox(box);
+    Vec halfSize = scalarMul(subtract(box.max, box.min), 0.5f);
 
     // Normalisasi koordinat
-    Vec v1 = minus(tri.v1, boxCenter);
-    Vec v2 = minus(tri.v2, boxCenter);
-    Vec v3 = minus(tri.v3, boxCenter);
+    Vec v1 = subtract(tri.v1, boxCenter);
+    Vec v2 = subtract(tri.v2, boxCenter);
+    Vec v3 = subtract(tri.v3, boxCenter);
 
     // vektor tepi segitiga
-    Vec edges[3] = {minus(v2, v1), minus(v3, v2), minus(v1, v3)};
+    Vec edges[3] = {subtract(v2, v1), subtract(v3, v2), subtract(v1, v3)};
 
     // vektor satuan
     Vec boxAxes[3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}; 
