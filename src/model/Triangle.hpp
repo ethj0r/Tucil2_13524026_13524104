@@ -1,13 +1,18 @@
 #pragma once
 #include "Vector.hpp"
 
-// segitiga (3 titik) untuk mesh
 struct Triangle {
     Vec v1, v2, v3;
 };
 
-// center segitiga
+/**
+ * @brief calc titik tengah (centroid) segitiga
+ * @return Vec titik tengah = (v1 + v2 + v3) / 3.
+ */
 Vec centerTri(const Triangle& a);
 
-// normal segitiga
+/**
+ * @brief calc normal segitiga (unit vector tegak lurus permukaan)
+ * @return vec unit normal
+ */
 Vec normalTri(const Triangle& a);
