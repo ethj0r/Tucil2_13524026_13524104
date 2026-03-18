@@ -38,7 +38,7 @@ void buildOctree(const BoundingBox& box, const vector<Triangle>& triangles,
     if(depth < THREAD_LIMIT){
         vector<thread> threads;
         for(const BoundingBox& child : children){
-            threads.emplace_back([&child, &intersecting, depth, maxDepth, &result]() {
+            threads.emplace_back([child, &intersecting, depth, maxDepth, &result]() {
                 buildOctree(child, intersecting, depth + 1, maxDepth, result);
             });
         }
