@@ -4,6 +4,7 @@
 #include "octree/Octree.hpp"
 #include "parser/ObjParser.hpp"
 #include "exporter/ObjExporter.hpp"
+#include "viewer/Viewer.hpp"
 
 using namespace std;
 
@@ -64,6 +65,8 @@ int main() {
     cout << "\nOctree depth   : " << maxDepth << "\n";
     cout << "Execution time : " << ms << " ms\n";
     cout << "Output saved   : " << outputPath << "\n";
+
+    launchViewer(octree.voxels);
 
     return 0;
 }
