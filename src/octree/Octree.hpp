@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <mutex>
+#include <thread>
 
 #include "../model/BoundingBox.hpp"
 #include "../model/Triangle.hpp"
@@ -12,6 +14,7 @@ struct OctreeResult {
     vector<BoundingBox> voxels;
     vector<int> nodesPerDepth;
     vector<int> prunedPerDepth;
+    mutex mtx;
 };
  
 /**
