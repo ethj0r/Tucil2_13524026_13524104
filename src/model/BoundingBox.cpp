@@ -4,24 +4,16 @@
 
 // min dari 3 bilangan 
 float min3(float a, float b, float c) {
-    if (a < b && a < c){
-        return a;
-    } else if (b < a && b < c){
-        return b;
-    } else {
-        return c;
-    }
+    if (a<=b && a<=c) return a;
+    if (b<=c) return b;
+    return c;
 }
 
 // max dari 3 bilangan
 float max3(float a, float b, float c) {
-    if (a > b && a > c){
-        return a;
-    } else if (b > a && b > c){
-        return b;
-    } else {
-        return c;
-    }
+    if (a>=b && a>=c) return a;
+    if (b>=c) return b;
+    return c;
 }
 
 // Separating axis theorem
