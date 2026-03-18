@@ -52,9 +52,9 @@ Vec centerBox(const BoundingBox& box) {
     return scalarMul(add(box.min, box.max), 0.5f);
 }
 
-std::vector<BoundingBox> splitBox(const BoundingBox& box) {
+vector<BoundingBox> splitBox(const BoundingBox& box) {
     Vec mid = centerBox(box);
-    std::vector<BoundingBox> children(8);
+    vector<BoundingBox> children(8);
 
     for (int i=0; i<8; i++) {
         children[i].min.x = (i & 1) ? mid.x : box.min.x;
