@@ -1,6 +1,6 @@
 #include "Octree.hpp"
 
-void buildOctree(const BoundingBox& box, const vector<Triangle>& triangles,
+void buildOctree(const AABB& box, const vector<Triangle>& triangles,
     int depth, int maxDepth, OctreeResult& result) {
 
     if ((int)result.nodesPerDepth.size()<=maxDepth) {
@@ -23,8 +23,8 @@ void buildOctree(const BoundingBox& box, const vector<Triangle>& triangles,
         return;
     }
 
-    vector<BoundingBox> children = splitBox(box);
-    for (const BoundingBox& child : children) {
+    vector<AABB> children = splitBox(box);
+    for (const AABB& child : children) {
         buildOctree(child, intersecting, depth+1, maxDepth, result);
     }
 

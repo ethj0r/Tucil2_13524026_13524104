@@ -37,8 +37,8 @@ bool axisTest(const Vec& axis, const Vec& v1, const Vec& v2, const Vec& v3, cons
     return !(minProj > radius || maxProj < -radius);
 }
 
-BoundingBox triangleBox(const Triangle& tri) {
-    BoundingBox box;
+AABB triangleBox(const Triangle& tri) {
+    AABB box;
     box.min.x = min3(tri.v1.x, tri.v2.x, tri.v3.x);
     box.min.y = min3(tri.v1.y, tri.v2.y, tri.v3.y);
     box.min.z = min3(tri.v1.z, tri.v2.z, tri.v3.z);
@@ -48,13 +48,13 @@ BoundingBox triangleBox(const Triangle& tri) {
     return box;
 }
 
-Vec centerBox(const BoundingBox& box) {
+Vec centerBox(const AABB& box) {
     return scalarMul(add(box.min, box.max), 0.5f);
 }
 
-std::vector<BoundingBox> splitBox(const BoundingBox& box) {
+std::vector<AABB> splitBox(const AABB& box) {
     Vec mid = centerBox(box);
-    std::vector<BoundingBox> children(8);
+    std::vector<AABB> children(8);
 
     for (int i=0; i<8; i++) {
         children[i].min.x = (i & 1) ? mid.x : box.min.x;
@@ -68,22 +68,22 @@ std::vector<BoundingBox> splitBox(const BoundingBox& box) {
     return children;
 }
 
-bool containsPoint(const BoundingBox& box, const Vec& point) {
+bool containsPoint(const AABB& box, const Vec& point) {
     return point.x >= box.min.x && point.x <= box.max.x && point.y >= box.min.y && point.y <= box.max.y && 
            point.z >= box.min.z && point.z <= box.max.z;
 }
 
-bool overlaps(const BoundingBox& a, const BoundingBox& b) {
+bool overlaps(const AABB& a, const AABB& b) {
     return a.min.x <= b.max.x && a.max.x >= b.min.x && a.min.y <= b.max.y && a.max.y >= b.min.y &&
            a.min.z <= b.max.z && a.max.z >= b.min.z;
 }
 
-bool intersectsTriangleBox(const Triangle& tri, const BoundingBox& box) {
+bool intersectsTriangleBox(const Triangle& tri, const AABB& box) {
     if (containsPoint(box, tri.v1) || containsPoint(box, tri.v2) || containsPoint(box, tri.v3)){
         return true;
     }
 
-    BoundingBox triBox = triangleBox(tri);
+    AABB triBox = triangleBox(tri);
     if (!overlaps(triBox, box)) {
         return false;
     }

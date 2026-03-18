@@ -10,7 +10,7 @@
  * save stats node/pruned per depth
  */
 struct OctreeResult {
-    vector<BoundingBox> voxels;
+    vector<AABB> voxels;
     vector<int> nodesPerDepth;
     vector<int> prunedPerDepth;
 };
@@ -23,5 +23,5 @@ struct OctreeResult {
  * @param maxDepth max depth dari octree
  * @param result output voxels+stats
  */
-void buildOctree(const BoundingBox& box, const vector<Triangle>& triangles,
+void buildOctree(const AABB& box, const vector<Triangle>& triangles,
     int depth, int maxDepth, OctreeResult& result);
