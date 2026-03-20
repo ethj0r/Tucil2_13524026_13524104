@@ -1,7 +1,7 @@
 #include "stats.hpp"
 #include <iostream>
 
-Stats buildStats(const vector<BoundingBox>& voxels, const OctreeResult& octree, int maxDepth, double execTime) {
+Stats buildStats(const vector<AABB>& voxels, const OctreeResult& octree, int maxDepth, double execTime) {
     Stats stats;
     stats.maxDepth = maxDepth;
     stats.execTime = execTime;
