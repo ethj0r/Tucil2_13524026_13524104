@@ -1,18 +1,21 @@
 #include "Octree.hpp"
 
+namespace {
+    const int THREAD_LIMIT = 1;  // Limit thread set to 1
+}
+
 void buildOctree(const BoundingBox& box, const vector<Triangle>& triangles,
     int depth, int maxDepth, OctreeResult& result) {
-    
-    // Limit thread set to 1
-    const int THREAD_LIMIT = 1;
+
+    // resize di root saja (tidak perlu lock karena masih 1 thread)
+    if(depth == 0){
+        result.nodesPerDepth.resize(maxDepth+1, 0);
+        result.prunedPerDepth.resize(maxDepth+1, 0);
+    }
 
     // Lock semua critical section
     {
         lock_guard<mutex> lock(result.mtx);
-        if ((int)result.nodesPerDepth.size()<=maxDepth) {
-            result.nodesPerDepth.resize(maxDepth+1, 0);
-            result.prunedPerDepth.resize(maxDepth+1, 0);
-        }
         result.nodesPerDepth[depth]++;
     }
 
