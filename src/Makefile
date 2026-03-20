@@ -1,5 +1,6 @@
 CXX      := clang++
-CXXFLAGS := -std=c++17 -Wall -Wextra -I. $(shell pkg-config --cflags raylib)
+RAYLIB_ISYSTEM := $(patsubst -I%,-isystem %,$(shell pkg-config --cflags raylib))
+CXXFLAGS := -std=c++17 -Wall -Wextra -I. $(RAYLIB_ISYSTEM)
 LDFLAGS  := $(shell pkg-config --libs raylib) -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
 BINDIR   := ../bin
 TARGET   := $(BINDIR)/voxelizer
