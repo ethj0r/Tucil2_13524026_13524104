@@ -26,7 +26,7 @@ struct Stats {
  * @param execTime Waktu eksekusi (ms).
  * @return Stats dengan data mesh, voxel, dan octree.
  */
-Stats buildStats(const vector<BoundingBox>& voxels, const OctreeResult& octree, int maxDepth, double execTime);
+Stats buildStats(const vector<AABB>& voxels, const OctreeResult& octree, int maxDepth, double execTime);
 
 /**
  * @brief Print stats voxelization.

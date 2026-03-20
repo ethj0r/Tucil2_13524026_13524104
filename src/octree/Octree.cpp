@@ -4,7 +4,7 @@ namespace {
     const int THREAD_LIMIT = 1;  // Limit thread set to 1
 }
 
-void buildOctree(const BoundingBox& box, const vector<Triangle>& triangles,
+void buildOctree(const AABB& box, const vector<Triangle>& triangles,
     int depth, int maxDepth, OctreeResult& result) {
 
     // resize di root saja (tidak perlu lock karena masih 1 thread)
@@ -36,11 +36,11 @@ void buildOctree(const BoundingBox& box, const vector<Triangle>& triangles,
         return;
     }
 
-    vector<BoundingBox> children = splitBox(box);
+    vector<AABB> children = splitBox(box);
 
     if(depth < THREAD_LIMIT){
         vector<thread> threads;
-        for(const BoundingBox& child : children){
+        for(const AABB& child : children){
             threads.emplace_back([child, &intersecting, depth, maxDepth, &result]() {
                 buildOctree(child, intersecting, depth + 1, maxDepth, result);
             });
@@ -51,7 +51,7 @@ void buildOctree(const BoundingBox& box, const vector<Triangle>& triangles,
         }
 
     } else {
-        for (const BoundingBox& child : children) {
+        for (const AABB& child : children) {
             buildOctree(child, intersecting, depth+1, maxDepth, result);
         }
     }

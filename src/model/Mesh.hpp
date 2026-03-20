@@ -15,7 +15,7 @@
 struct Mesh {
 	vector<Vec> vertices;
 	vector<Triangle> triangles;
-	BoundingBox bounds;
+	AABB bounds;
 	bool hasBounds = false;
 };
 
