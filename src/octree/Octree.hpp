@@ -6,8 +6,7 @@
 
 /**
  * @brief res build octree
- * save list voxel (leaf bounding box)
- * save stats node/pruned per depth
+ * save voxel leaf dan stats node/pruned per depth
  */
 struct OctreeResult {
     vector<AABB> voxels;
