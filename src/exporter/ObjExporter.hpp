@@ -16,4 +16,4 @@ using namespace std;
  * @param filepath output path
  * @return total vertex yg ditulis
  */
-int exportObj(const vector<BoundingBox>& voxels, const string filepath);
+int exportObj(const vector<AABB>& voxels, const string filepath);

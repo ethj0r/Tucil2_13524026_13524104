@@ -2,6 +2,7 @@
 #include <chrono>
 #include "model/Mesh.hpp"
 #include "exporter/ObjExporter.hpp"
+#include "viewer/Viewer.hpp"
 #include "octree/Octree.hpp"
 #include "stats/stats.hpp"
 
@@ -46,6 +47,8 @@ int main() {
     // build & print stats
     Stats stats = buildStats(octree.voxels, octree, maxDepth, execTime);
     printStats(stats, outputPath);
+
+    launchViewer(octree.voxels);
 
     return 0;
 }

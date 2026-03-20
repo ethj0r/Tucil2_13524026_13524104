@@ -1,13 +1,13 @@
 #include "ObjExporter.hpp"
 
-int exportObj(const vector<BoundingBox>& voxels, const string filepath){
+int exportObj(const vector<AABB>& voxels, const string filepath){
     ofstream file(filepath);
     if (!file.is_open()) throw runtime_error("Cannot open output file: "+filepath);
     
     file << "# Voxelized OBJ - " << voxels.size() << " voxels\n";
     int vertexCnt=0;
 
-    for (const BoundingBox& box : voxels){
+    for (const AABB& box : voxels){
         float x0=box.min.x, y0=box.min.y, z0=box.min.z;
         float x1=box.max.x, y1=box.max.y, z1=box.max.z;
 
