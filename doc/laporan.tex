@@ -108,8 +108,34 @@
 % Problem statement: convert polygon mesh (.obj) to uniform voxel grid.
 % Scope: surface voxelization using Octree with Divide and Conquer.
 % Report structure overview.
+Dalam \textit{computer graphic}, objek 3D itu umumnya disimpan sebagai \textit{polygon mesh}.
+Format ini fleksibel dan ringan tetapi tidak selalu cocok untuk kebutuhan tertentu.
+Seperti yang kita tau, \textit{grid based physics simulations}, \textit{3D printing}, hingga
+game seperti Minecraft, itu semuanya membutuhkan representasi volumetrik yang lebih terstruktur.
+Di sinilah proses \textit{voxelization} digunakan yaitu mengubah \textit{polygon mesh} menjadi
+kubus kecil seragam yang disebut \textit{voxel}.
 
-\section{Theoretical Background}
+Problem utamanya adalah kita diberikan sebuah file \texttt{.obj} berisi \textit{polygon mesh}
+dan program harus menghasilkan \texttt{.obj} baru yang mana seluruhnya tersusun dari voxel
+yang seragam yang merpresentasikan objek aslinya. Namun, ada obstacle yang terletak pada
+scale, pada depth octree yang tinggi, jumlah candidate voxel cenderung tumbuh secara eksponensial
+($8^N$ pada depth $N$).
+
+Lalu bagaimana caranya kita develop? Ya, dengan menggunakan paradigma \textit{Divide and Conquer}
+melalui \textit{Octree} (ya sesuai spesifikasi tucil...). Ruang 3D dibungkus oleh bounding box
+(AABB) berbentuk cubic lalu dipotong secara rekursif menjadi 8 sub-cubic pada setiap level.
+Di setiap step, kita melakukan uji perpotongan antara segitiga mesh dan kotak menggunakan
+\textit{Separating Axis Theorem} (SAT). Kotak yang tidak bersinggungan dengan segitiga manapun
+langsung di-\textit{pruned} sehingga hanya bagian yang relevan yang ditelusuri lebih dalam.
+Proses ini naturally membentuk paradigma \textit{Divide and Conquer}, divide ruang, conquer
+setiap bagian independently, lalu terakhir tinggal combine.
+
+Program yang kita develop di sini sepenuhnya dalam \texttt{C++}. Selain fungsionalitas utama (wajib),
+kami juga mengimplementasikan dua fitur bonus yaitu \textit{concurrency} untuk paralelisasi
+rekursif pada octree menggunakan \texttt{std::thread} serta \textit{interactive 3D viewer}
+dengan raylib yang memungkinkan user melakukan eksplorasi hasil voxelization.
+
+\section{Theoretical Background}\label{sec:teori}
 \subsection{Voxelization}
 % Definition, surface vs. solid voxelization, applications.
 \subsection{Octree}
@@ -121,7 +147,7 @@
 % Triangle--AABB intersection test.
 % The 13 separating axes (3 AABB normals + 1 triangle normal + 9 cross products).
 
-\section{Divide and Conquer Algorithm}
+\section{Divide and Conquer Algorithm}\label{sec:algo}
 \subsection{High-Level Steps}
 % Step-by-step description of the algorithm (not just pseudocode).
 \subsection{Pseudocode}
@@ -129,7 +155,7 @@
 \subsection{Complexity Analysis}
 % Time and space complexity in terms of depth N and triangle count T.
 
-\section{Implementation}
+\section{Implementation}\label{sec:impl}
 \subsection{System Architecture}
 % Module diagram, dependency flow, single-responsibility design.
 % Include figure: architecture diagram.
@@ -139,7 +165,7 @@
 % Notable engineering decisions: fan triangulation, bounding box
 % normalization, SAT optimization, etc.
 
-\section{Results and Analysis}
+\section{Results and Analysis}\label{sec:hasil}
 % For each test case: input model, depth, voxel count, vertex/face count,
 % octree stats, pruning stats, execution time, before/after screenshots.
 \subsection{Test Case 1}
@@ -151,14 +177,14 @@
 % Comparative table across all test cases.
 % Discussion: how depth affects resolution, voxel count, and runtime.
 
-\section{Bonus Features}
+\section{Bonus Features}\label{sec:bonus}
 \subsection{Concurrency}
 % Parallelization strategy, speedup measurements, thread count analysis.
 \subsection{Interactive 3D Viewer}
 % Raylib-based viewer, features (orbit camera, zoom, rotation),
 % implementation highlights, screenshots.
 
-\section{Conclusion}
+\section{Conclusion}\label{sec:kesimpulan}
 % Summary of achievements, lessons learned, potential future work.
 
 \newpage
