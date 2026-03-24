@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "/opt/homebrew/Cellar/raylib/5.5/include"
+            ],
+            "standard": "c++17",
+            "intelliSenseMode": "macos-clang-arm64"
+        },
+        {
+            "name": "Win64",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/vendor/raylib/include"
+            ],
+            "standard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}
