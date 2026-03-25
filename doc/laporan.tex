@@ -19,6 +19,7 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{subcaption}
+\graphicspath{{./}{./assets/}{./images/}}
 
 \usepackage{listings}
 \usepackage{xcolor}
@@ -68,7 +69,11 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\textit{Tugas Kecil II --- IF2211 Strategi Algoritma}}
-\fancyhead[R]{\small\thepage}
+\setlength{\headheight}{28pt}
+\newcommand{\itblogo}[1]{%
+    \IfFileExists{logoITB.jpg}{\includegraphics[#1]{logoITB.jpg}}{}
+}
+\fancyhead[R]{\itblogo{height=0.8cm}\hspace{0.4em}\small\thepage}
 \fancyfoot[C]{\small Institut Teknologi Bandung}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.2pt}
@@ -78,7 +83,7 @@
     \vspace{-1.5cm}
     {\Large\textsc{Tugas Kecil II --- IF2211 Strategi Algoritma}}\\[0.4cm]
     {\LARGE\textbf{3D Voxelization using Octree}}\\[0.3cm]
-    {\normalsize Semester II 2025/2026}
+    {\normalsize Semester II 2025/2026}\\[0.4cm]
     \vspace{-0.3cm}
 }
 \author{
@@ -137,15 +142,65 @@ dengan raylib yang memungkinkan user melakukan eksplorasi hasil voxelization.
 
 \section{Theoretical Background}\label{sec:teori}
 \subsection{Voxelization}
-% Definition, surface vs. solid voxelization, applications.
+Secara sederhana, \textit{voxelization} adalah proses mengubah model 3D yang mulus
+(biasanya \textit{polygon mesh}) menjadi kumpulan kotak - kotak kecil dalam grid 3D.
+Analogi sederhananya adalah jika dunia 2D memiliki \textit{pixel}, maka dunia 3D memiliki
+\textit{voxel} (\textit{volumetric pixel}) sebagai blok bangunan utamanya. Setiap voxel merepresentasikan sebuah kubus kecil
+di ruang dan menyimpan informasi apakah area tersebut dianggap terisi atau kosong.
+
+Dalam praktiknya, ada dua pendekatan utama. Pertama, \textit{surface voxelization}, yang hanya
+menandai kotak - kotak pada bagian permukaan objeknya saja. Kedua, \textit{solid voxelization},
+yang benar - benar mengisi sampai ke bagian dalam objeknya. Pada tugas ini, pendekatan yang digunakan
+adalah \textit{surface voxelization} karena target utama kita hanya struktur bentuk luarnya saja agar lebih efisien.
+
+Mengapa metode ini penting? Karena banyak sistem lebih mudah bekerja pada data berbasis grid,
+misalnya untuk \textit{3D printing}, visualisasi permainan, dan masih banyak contoh lainnya.
 \subsection{Octree}
-% Tree structure, spatial subdivision, depth vs. resolution trade-off.
+\textit{Octree} adalah struktur data hierarkis untuk partisi ruang 3D. Satu node merepresentasikan
+sebuah \textit{axis-aligned bounding box} (AABB) berbentuk kubus, lalu node tersebut dibagi menjadi
+8 anak kubus yang ukurannya setengah pada masing-masing sumbu. Proses pembagian ini bisa dilakukan
+berulang sampai kedalaman tertentu.
+
+Kelebihan utama Octree adalah kemampuannya melakukan \textit{adaptive refinement}. Area ruang yang
+akan digunakan (misalnya dekat permukaan objek) dapat dibagi lebih dalam, sedangkan area kosong dapat
+dipangkas lebih awal. Hal ini jauh lebih efisien dibanding membuat seluruh grid \textit{uniform} dari awal,
+terutama saat model hanya menempati sebagian kecil ruang.
+
+Tentu ada \textit{trade-off} antara kedalaman dan resolusi. Semakin dalam tingkat Octree-nya, voxel-nya
+akan semakin kecil dan detail objek akan semakin tajam. Namun, jumlah sel dapat meningkat secara drastis.
+Oleh karena itu, strategi \textit{pruning} (pemangkasan) wajib untuk diimplementasikan 
+agar komputasi tetap efisien. 
+
 \subsection{Divide and Conquer}
-% General paradigm: divide, conquer, combine.
-% Why Octree recursion is a natural instance of D\&C.
+Paradigma \textit{Divide and Conquer} bekerja melalui tiga tahap: \textit{divide}, \textit{conquer},
+dan \textit{combine}. Pertama, masalah besar dipecah menjadi submasalah yang lebih kecil. Kedua,
+setiap submasalah diselesaikan secara independen (\textit{umumnya rekursif}). Ketiga, hasil
+submasalah digabung untuk membentuk solusi akhir.
+
+Pada kasus voxelization berbasis Octree, pola ini muncul secara alami. Tahap \textit{divide}
+dilakukan saat satu kubus dibagi menjadi 8 sub-kubus. Tahap \textit{conquer} dilakukan dengan
+mengecek masing-masing sub-kubus: apakah perlu dibagi lagi, dipangkas, atau dijadikan voxel akhir.
+Tahap \textit{combine} terjadi ketika seluruh hasil voxel dari subtree dikumpulkan menjadi satu kesatuan model yang utuh.
+
+Keuntungan pendekatan ini adalah struktur rekursifnya bersih, modular, dan sangat cocok untuk
+dibuat paralel. Karena banyak subtree saling independen, proses \textit{conquer} dapat dijalankan
+bersamaan menggunakan \textit{thread} terpisah jika diperlukan (\textit{fitur bonus}).
 \subsection{Separating Axis Theorem (SAT)}
-% Triangle--AABB intersection test.
-% The 13 separating axes (3 AABB normals + 1 triangle normal + 9 cross products).
+Inti dari voxelization permukaan adalah untuk mengecek
+\textit{apakah sebuah segitiga mesh berpotongan dengan sebuah AABB?}
+Untuk itu, kita menggunakan \textit{Separating Axis Theorem} (SAT).
+
+Prinsip SAT menyatakan bahwa dua objek konveks (\textit{himpunan titik atau bentuk geometri yang tidak memiliki lekukan ke dalam}) 
+tidak berpotongan jika dan hanya jika ada
+setidaknya satu sumbu proyeksi yang memisahkan keduanya (\textit{separating axis}). Jadi,
+untuk membuktikan dua objek berpotongan, kita cukup memastikan bahwa tidak ada sumbu pemisah.
+
+Pada pengujian segitiga vs AABB, himpunan sumbu uji yang umum dipakai berjumlah 13, yaitu
+3 sumbu normal AABB (sumbu $x$, $y$, $z$),
+1 sumbu normal bidang segitiga,
+dan 9 sumbu hasil \textit{cross product} antara 3 edge segitiga dengan 3 sumbu AABB.
+Jika pada semua sumbu tersebut proyeksi kedua objek saling overlap, maka segitiga
+dan AABB dinyatakan berpotongan.
 
 \section{Divide and Conquer Algorithm}\label{sec:algo}
 \subsection{High-Level Steps}
