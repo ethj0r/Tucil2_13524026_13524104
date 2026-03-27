@@ -161,7 +161,7 @@ Pruned nodes per depth:
 Octree depth   : 4
 Execution time : 3.43505 ms
 ```
-
+![Cube Model](doc/cube.png)
 
 ## Catatan
 
