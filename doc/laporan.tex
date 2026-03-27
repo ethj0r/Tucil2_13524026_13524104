@@ -21,7 +21,6 @@
 \usepackage{subcaption}
 \graphicspath{{./}{./assets/}{./images/}}
 
-% --- TikZ ---
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, shapes.misc, arrows.meta, positioning, calc}
 
@@ -58,7 +57,6 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 
-% Setiap \section mulai dari halaman baru
 \AddToHook{cmd/section/before}{\clearpage}
 
 \usepackage{hyperref}
@@ -75,13 +73,13 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small\textit{Tugas Kecil II --- IF2211 Strategi Algoritma}}
-\setlength{\headheight}{28pt}
-\newcommand{\itblogo}[1]{%
-    \IfFileExists{logoITB.jpg}{\includegraphics[#1]{logoITB.jpg}}{}
+\setlength{\headheight}{36pt}
+\fancyhead[L]{%
+    \small\textnormal{School of Electrical Engineering and Informatics}\\[-1pt]
+    \small\textnormal{Institut Teknologi Bandung}%
 }
-\fancyhead[R]{\itblogo{height=0.8cm}\hspace{0.4em}\small\thepage}
-\fancyfoot[C]{\small Institut Teknologi Bandung}
+\fancyhead[R]{\includegraphics[height=1cm]{assets/LogoITB.png}}
+\fancyfoot[C]{\small\textnormal{IF2211 Strategi Algoritma}}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.2pt}
 
@@ -90,15 +88,9 @@
     \vspace{-1.5cm}
     {\Large\textsc{Tugas Kecil II --- IF2211 Strategi Algoritma}}\\[0.4cm]
     {\LARGE\textbf{3D Voxelization using Octree}}\\[0.3cm]
-    {\normalsize Semester II 2025/2026}\\[0.4cm]
     \vspace{-0.3cm}
 }
-\author{
-    \textbf{Made Branenda Jordhy} --- 13524026 \\
-    \textbf{Valentino Daniel Kusumo} --- 13524104 \\[0.3cm]
-    {\small School of Electrical Engineering and Informatics}\\
-    {\small Institut Teknologi Bandung}
-}
+\author{}
 \date{\today}
 
 \begin{document}
@@ -106,10 +98,23 @@
 \maketitle
 \thispagestyle{empty}
 
-%ABSRTACT
-\begin{abstract}
-\noindent
-\end{abstract}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{testcase/sphere_aft.png}
+\end{figure}
+
+\vspace{1cm}
+\begin{center}
+    \textbf{Made Branenda Jordhy} --- 13524026 \\[0.15cm]
+    \textbf{Valentino Daniel Kusumo} --- 13524104
+\end{center}
+
+\vspace{4cm}
+\begin{center}
+    {\large\textbf{School of Electrical Engineering and Informatics}}\\[0.1cm]
+    {\large\textbf{Institut Teknologi Bandung}}\\[0.1cm]
+    {\large\textbf{Semester II 2025/2026}}\\[0.1cm]
+\end{center}
 
 \newpage
 \tableofcontents
@@ -212,12 +217,10 @@ dan AABB dinyatakan berpotongan.
 
 Sekarang kita masuk ke inti dari project ini. Bagaimana \textit{Divide and Conquer} benar-benar
 bekerja di dalam proses voxelization. Untuk SAT test-nya sendiri, kita mengacu pada paper
-Akenine-M\"oller\footnote{T. Akenine-M\"oller,
-``Fast 3D Triangle-Box Overlap Testing,'' \textit{Journal of Graphics Tools}, vol.~6, no.~1, 2001.}
+Akenine-M\"oller \cite{akenine2001}
 yang memang jadi standar untuk triangle-AABB intersection. Sedangkan konsep octree-based
 voxelization-nya terinspirasi dari Schwarz dan
-Seidel\footnote{M.~Schwarz dan H.-P.~Seidel, ``Fast Parallel Surface and Solid Voxelization on GPUs,''
-\textit{ACM Transactions on Graphics}, vol.~29, no.~6, 2010.},
+Seidel \cite{schwarz2010},
 meskipun paper mereka target-nya GPU, kita adapt untuk CPU secara sequential
 (plus concurrency sebagai bonus).
 
@@ -609,24 +612,41 @@ Secara umum, metrik yang diamati adalah:
 \subsection{Test Case 1}
 \textbf{Model:} \texttt{cube.obj}, \textbf{depth:} 4
 
-\begin{table}[H]
+\begin{figure}[H]
     \centering
-    \caption{Hasil voxelization untuk \texttt{cube.obj}}
-    \begin{tabular}{lr}
-        \toprule
-        Metrik & Nilai \\
-        \midrule
-        Vertex mesh awal & 8 \\
-        Triangle mesh awal & 12 \\
-        Voxel count & 1352 \\
-        Vertex output & 10816 \\
-        Face output & 16224 \\
-        Node octree (total) & 2889 \\
-        Node ter-prune (total) & 1176 \\
-        Waktu eksekusi & 4.34414 ms \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+    \begin{minipage}[c]{0.30\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.2cm,keepaspectratio]{testcase/cube_bef.png}\\[4pt]
+        {\small (a) Mesh awal}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.30\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.2cm,keepaspectratio]{testcase/cube_aft.png}\\[4pt]
+        {\small (b) Hasil voxelization}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.34\textwidth}
+        \centering
+        \small
+        \begin{tabular}{lr}
+            \toprule
+            Metrik & Nilai \\
+            \midrule
+            Vertex awal & 8 \\
+            Triangle awal & 12 \\
+            Voxel count & 1352 \\
+            Vertex output & 10816 \\
+            Face output & 16224 \\
+            Node total & 2889 \\
+            Pruned total & 1176 \\
+            Waktu & 4.34 ms \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+    \caption{Voxelization \texttt{cube.obj} (depth 4)}
+    \label{fig:tc-cube}
+\end{figure}
 
 Model kubus menghasilkan voxel count cukup tinggi karena seluruh permukaan
 terdistribusi merata pada sisi-sisi AABB, sehingga banyak leaf level akhir
@@ -635,24 +655,41 @@ tetap relevan.
 \subsection{Test Case 2}
 \textbf{Model:} \texttt{sphere.obj}, \textbf{depth:} 4
 
-\begin{table}[H]
+\begin{figure}[H]
     \centering
-    \caption{Hasil voxelization untuk \texttt{sphere.obj}}
-    \begin{tabular}{lr}
-        \toprule
-        Metrik & Nilai \\
-        \midrule
-        Vertex mesh awal & 1106 \\
-        Triangle mesh awal & 2208 \\
-        Voxel count & 1160 \\
-        Vertex output & 9280 \\
-        Face output & 13920 \\
-        Node octree (total) & 2697 \\
-        Node ter-prune (total) & 1200 \\
-        Waktu eksekusi & 7.50067 ms \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+    \begin{minipage}[c]{0.30\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.2cm,keepaspectratio]{testcase/sphere_bef.png}\\[4pt]
+        {\small (a) Mesh awal}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.30\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.2cm,keepaspectratio]{testcase/sphere_aft.png}\\[4pt]
+        {\small (b) Hasil voxelization}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.34\textwidth}
+        \centering
+        \small
+        \begin{tabular}{lr}
+            \toprule
+            Metrik & Nilai \\
+            \midrule
+            Vertex awal & 1106 \\
+            Triangle awal & 2208 \\
+            Voxel count & 1160 \\
+            Vertex output & 9280 \\
+            Face output & 13920 \\
+            Node total & 2697 \\
+            Pruned total & 1200 \\
+            Waktu & 7.50 ms \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+    \caption{Voxelization \texttt{sphere.obj} (depth 4)}
+    \label{fig:tc-sphere}
+\end{figure}
 
 Meskipun voxel count sedikit lebih rendah dari kubus, waktu eksekusi lebih tinggi
 karena jumlah triangle input jauh lebih besar. Hal ini menunjukkan biaya SAT
@@ -661,24 +698,41 @@ bergantung pada kompleksitas mesh sumber.
 \subsection{Test Case 3}
 \textbf{Model:} \texttt{cylinder.obj}, \textbf{depth:} 4
 
-\begin{table}[H]
+\begin{figure}[H]
     \centering
-    \caption{Hasil voxelization untuk \texttt{cylinder.obj}}
-    \begin{tabular}{lr}
-        \toprule
-        Metrik & Nilai \\
-        \midrule
-        Vertex mesh awal & 66 \\
-        Triangle mesh awal & 128 \\
-        Voxel count & 640 \\
-        Vertex output & 5120 \\
-        Face output & 7680 \\
-        Node octree (total) & 1801 \\
-        Node ter-prune (total) & 936 \\
-        Waktu eksekusi & 3.94558 ms \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+    \begin{minipage}[c]{0.30\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.2cm,keepaspectratio]{testcase/cylinder_bef.png}\\[4pt]
+        {\small (a) Mesh awal}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.30\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.2cm,keepaspectratio]{testcase/cylinder_aft.png}\\[4pt]
+        {\small (b) Hasil voxelization}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.34\textwidth}
+        \centering
+        \small
+        \begin{tabular}{lr}
+            \toprule
+            Metrik & Nilai \\
+            \midrule
+            Vertex awal & 66 \\
+            Triangle awal & 128 \\
+            Voxel count & 640 \\
+            Vertex output & 5120 \\
+            Face output & 7680 \\
+            Node total & 1801 \\
+            Pruned total & 936 \\
+            Waktu & 3.95 ms \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+    \caption{Voxelization \texttt{cylinder.obj} (depth 4)}
+    \label{fig:tc-cylinder}
+\end{figure}
 
 Silinder memiliki geometri lebih sederhana daripada sphere dan torus,
 sehingga menghasilkan jumlah node aktif dan waktu eksekusi yang lebih kecil.
@@ -686,24 +740,41 @@ sehingga menghasilkan jumlah node aktif dan waktu eksekusi yang lebih kecil.
 \subsection{Test Case 4}
 \textbf{Model:} \texttt{teapot.obj}, \textbf{depth:} 4
 
-\begin{table}[H]
+\begin{figure}[H]
     \centering
-    \caption{Hasil voxelization untuk \texttt{teapot.obj}}
-    \begin{tabular}{lr}
-        \toprule
-        Metrik & Nilai \\
-        \midrule
-        Vertex mesh awal & 530 \\
-        Triangle mesh awal & 1024 \\
-        Voxel count & 418 \\
-        Vertex output & 3344 \\
-        Face output & 5016 \\
-        Node octree (total) & 1129 \\
-        Node ter-prune (total) & 570 \\
-        Waktu eksekusi & 3.87233 ms \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+    \begin{minipage}[c]{0.30\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.2cm,keepaspectratio]{testcase/teapot_bef.png}\\[4pt]
+        {\small (a) Mesh awal}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.30\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.2cm,keepaspectratio]{testcase/teapot_aft.png}\\[4pt]
+        {\small (b) Hasil voxelization}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.34\textwidth}
+        \centering
+        \small
+        \begin{tabular}{lr}
+            \toprule
+            Metrik & Nilai \\
+            \midrule
+            Vertex awal & 530 \\
+            Triangle awal & 1024 \\
+            Voxel count & 418 \\
+            Vertex output & 3344 \\
+            Face output & 5016 \\
+            Node total & 1129 \\
+            Pruned total & 570 \\
+            Waktu & 3.87 ms \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+    \caption{Voxelization \texttt{teapot.obj} (depth 4)}
+    \label{fig:tc-teapot}
+\end{figure}
 
 Teapot menghasilkan voxel count paling kecil pada depth yang sama,
 yang berarti distribusi permukaan objek relatif tidak memenuhi banyak sel leaf.
@@ -711,24 +782,39 @@ yang berarti distribusi permukaan objek relatif tidak memenuhi banyak sel leaf.
 \subsection{Test Case 5}
 \textbf{Model:} \texttt{torus.obj}, \textbf{depth:} 4
 
-\begin{table}[H]
+\begin{figure}[H]
     \centering
-    \caption{Hasil voxelization untuk \texttt{torus.obj}}
-    \begin{tabular}{lr}
-        \toprule
-        Metrik & Nilai \\
-        \midrule
-        Vertex mesh awal & 512 \\
-        Triangle mesh awal & 1024 \\
-        Voxel count & 752 \\
-        Vertex output & 6016 \\
-        Face output & 9024 \\
-        Node octree (total) & 1865 \\
-        Node ter-prune (total) & 880 \\
-        Waktu eksekusi & 4.83732 ms \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{testcase/torus_bef.png}
+        \caption{Mesh awal}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{testcase/torus_aft.png}
+        \caption{Hasil voxelization}
+    \end{subfigure}
+    \hfill
+    \begin{minipage}[b]{0.32\textwidth}
+        \centering
+        \small
+        \begin{tabular}{lr}
+            \toprule
+            Metrik & Nilai \\
+            \midrule
+            Vertex awal & 512 \\
+            Triangle awal & 1024 \\
+            Voxel count & 752 \\
+            Vertex output & 6016 \\
+            Face output & 9024 \\
+            Node total & 1865 \\
+            Pruned total & 880 \\
+            Waktu & 4.84 ms \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+    \caption{Voxelization \texttt{torus.obj} (depth 4)}
+    \label{fig:tc-torus}
+\end{figure}
 
 Lubang pada torus menyebabkan pemetaan voxel yang khas, yaitu
 lebih banyak voxel dibanding teapot, namun tetap lebih rendah dari cube/sphere
@@ -877,6 +963,47 @@ untuk menjaga stabilitas. Kedua, \textit{interactive 3D viewer} dengan raylib ya
 menyediakan orbit camera, multiple render modes, cross-section clipping, dan explode
 view, sehingga user bisa langsung memvalidasi hasil voxelization tanpa tool eksternal.
 
+\begin{thebibliography}{9}
+
+\bibitem{munir2026a}
+R.~Munir, ``Algoritma Divide and Conquer (2026) --- Bagian 1,''
+Teknik Informatika, Institut Teknologi Bandung, 2026.
+\url{https://informatika.stei.itb.ac.id/~rinaldi.munir/Stmik/2025-2026/07-Algoritma-Divide-and-Conquer-(2026)-Bagian1.pdf}
+
+\bibitem{munir2026b}
+R.~Munir, ``Algoritma Divide and Conquer (2026) --- Bagian 2,''
+Teknik Informatika, Institut Teknologi Bandung, 2026.
+\url{https://informatika.stei.itb.ac.id/~rinaldi.munir/Stmik/2025-2026/08-Algoritma-Divide-and-Conquer-(2026)-Bagian2.pdf}
+
+\bibitem{munir2026c}
+R.~Munir, ``Algoritma Divide and Conquer (2026) --- Bagian 3,''
+Teknik Informatika, Institut Teknologi Bandung, 2026.
+\url{https://informatika.stei.itb.ac.id/~rinaldi.munir/Stmik/2025-2026/09-Algoritma-Divide-and-Conquer-(2026)-Bagian3.pdf}
+
+\bibitem{munir2026d}
+R.~Munir, ``Algoritma Divide and Conquer (2026) --- Bagian 4,''
+Teknik Informatika, Institut Teknologi Bandung, 2026.
+\url{https://informatika.stei.itb.ac.id/~rinaldi.munir/Stmik/2025-2026/10-Algoritma-Divide-and-Conquer-(2026)-Bagian4.pdf}
+
+\bibitem{akenine2001}
+T.~Akenine-M\"oller, ``Fast 3D Triangle-Box Overlap Testing,''
+\textit{Journal of Graphics Tools}, vol.~6, no.~1, pp.~29--33, 2001.
+\url{https://doi.org/10.1080/10867651.2001.10487535}
+(Accessed: 18 March 2026).
+
+\bibitem{schwarz2010}
+M.~Schwarz and H.-P.~Seidel, ``Fast Parallel Surface and Solid Voxelization on GPUs,''
+\textit{ACM Transactions on Graphics}, vol.~29, no.~6, article 179, 2010.
+\url{https://doi.org/10.1145/1882261.1866201}
+(Accessed: 18 March 2026).
+
+\bibitem{baert2012}
+J.~Baert, ``Out-Of-Core Construction of Sparse Voxel Octrees,'' 2012.
+\url{https://www.forceflow.be/2012/07/24/out-of-core-construction-of-sparse-voxel-octrees/}
+(Accessed: 26 March 2026).
+
+\end{thebibliography}
+
 \newpage
 \section*{Repository}
 \addcontentsline{toc}{section}{Repository}
@@ -919,14 +1046,14 @@ melainkan hasil pemikiran dan analisis mandiri.
 \noindent
 \begin{minipage}[t]{0.45\textwidth}
     \centering
-    {[Tanda tangan mahasiswa 1]}\\[1.5cm]
+    \includegraphics[height=2.5cm]{assets/sign_Jor.png}\\
     \textbf{Made Branenda Jordhy}\\
     13524026
 \end{minipage}
 \hfill
 \begin{minipage}[t]{0.45\textwidth}
     \centering
-    {[Tanda tangan mahasiswa 2]}\\[1.5cm]
+    \includegraphics[height=2.5cm]{assets/sign_Daniel.jpeg}\\
     \textbf{Valentino Daniel Kusumo}\\
     13524104
 \end{minipage}
