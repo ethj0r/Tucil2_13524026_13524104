@@ -1,5 +1,14 @@
 # Voxelization Objek 3D Menggunakan Octree
 
+![Cube Model](doc/testcase/sphere_aft.png)
+
+## Author
+
+| Nama | NIM | GitHub | Portfolio |
+|------|-----|--------|-----------|
+| Made Branenda Jordhy | 13524026 | [github.com/ethj0r](https://github.com/ethj0r) | [ethjor.dev](https://ethjor.vercel.app) |
+| Valentino Daniel Kusumo | 13524104 | [github.com/ValentinoDanielKusumo](https://github.com/ValentinoDanielKusumo) | - |
+
 ## Deskripsi Program
 
 Program ini mengubah model 3D berbentuk mesh (*file OBJ*) menjadi representasi voxel (*kubus kecil*)  menggunakan struktur data octree. Setiap voxel merupakan bounding box berbentuk kubus yang menandai area di mana model 3D tersebut ada.
@@ -161,7 +170,6 @@ Pruned nodes per depth:
 Octree depth   : 4
 Execution time : 3.43505 ms
 ```
-![Cube Model](doc/cube.png)
 
 ## Catatan
 
