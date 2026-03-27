@@ -40,8 +40,13 @@ int main() {
     auto end = chrono::high_resolution_clock::now();
     double execTime = chrono::duration<double, milli>(end - start).count();
 
-    // export
-    string outputPath = "../test/output.obj";
+    //export
+    string basename = filepath;
+    size_t lastSlash = basename.find_last_of("/\\");
+    if (lastSlash!=string::npos) basename = basename.substr(lastSlash+1);
+    size_t dotPos = basename.rfind('.');
+    if (dotPos!=string::npos) basename = basename.substr(0, dotPos);
+    string outputPath = "../test/"+basename+"_output.obj";
     exportObj(octree.voxels, outputPath);
 
     // build & print stats
