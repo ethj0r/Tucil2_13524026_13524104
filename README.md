@@ -1,4 +1,4 @@
-# Voxelization Objek 3D Menggunakan Octree
+# 3D Voxelization using Octree
 
 ![Cube Model](doc/testcase/sphere_aft.png)
 
@@ -6,14 +6,14 @@
 
 | Nama | NIM | GitHub | Portfolio |
 |------|-----|--------|-----------|
-| Made Branenda Jordhy | 13524026 | [github.com/ethj0r](https://github.com/ethj0r) | [ethjor.dev](https://ethjor.vercel.app) |
-| Valentino Daniel Kusumo | 13524104 | [github.com/ValentinoDanielKusumo](https://github.com/ValentinoDanielKusumo) | - |
+| Made Branenda Jordhy | 13524026 | [ethj0r](https://github.com/ethj0r) | [ethjor.dev](https://ethjor.vercel.app) |
+| Valentino Daniel Kusumo | 13524104 | [ValentinoDanielKusumo](https://github.com/ValentinoDanielKusumo) | - |
 
-## Deskripsi Program
+## Description
 
 Program ini mengubah model 3D berbentuk mesh (*file OBJ*) menjadi representasi voxel (*kubus kecil*)  menggunakan struktur data octree. Setiap voxel merupakan bounding box berbentuk kubus yang menandai area di mana model 3D tersebut ada.
 
-## Teori Singkat
+## Theoritical Background
 
 ### Voxelization
 
@@ -25,7 +25,7 @@ Setiap unit voxel diberi status:
 
 Hasil akhirnya adalah model 3D yang tidak lagi halus, tetapi terdiri dari kumpulan kubus-kubus diskrit.
 
-### Struktur Octree
+### Octree's Structure
 
 Octree adalah struktur hierarki untuk membagi ruang 3D secara efisien dalam proses voxelization. Prinsip kerjanya sebagai berikut:
 
@@ -51,15 +51,15 @@ Dalam program ini, octree dibangun secara rekursif dengan:
 3. Menentukan voxel mana yang berpotongan dengan permukaan model (segitiga)
 4. Menyimpan hasil voxel sebagai file OBJ baru dan menampilkannya secara visual
 
-## Persyaratan
+## Pre-requisites
 
-### Perangkat Lunak
+### Software Requirements
 - **C++ Compiler**: C++17 atau lebih baru (clang++ atau g++)
 - **Build Tool**: GNU Make
 - **pkg-config**: Untuk manajemen library
 - **Raylib**: Library grafis untuk visualisasi 3D (v4.0+)
 
-### Dependensi Sistem
+### Dependencies
 
 **Windows (MSYS2/MinGW)**:
 ```bash
@@ -79,9 +79,9 @@ sudo apt-get install libraylib-dev
 brew install raylib pkg-config
 ```
 
-## Cara Kompilasi dan Menjalankan
+## How to Compile and Run?
 
-### Kompilasi
+### Compile
 
 Navigasi ke direktori `src` dan jalankan:
 ```bash
@@ -110,7 +110,7 @@ Ketika program dimulai, akan diminta untuk memasukkan:
   - Waktu eksekusi (dalam milidetik)
   - Total jumlah voxel
 
-## Struktur Proyek
+## Project Structure
 
 ```
 .
@@ -140,7 +140,7 @@ Ketika program dimulai, akan diminta untuk memasukkan:
 └── README.md                       
 ```
 
-## Contoh Output
+## Output Example
 
 ```
 Path ke .obj file: ../test/cow.obj
@@ -171,8 +171,11 @@ Octree depth   : 4
 Execution time : 3.43505 ms
 ```
 
-## Catatan
+## Notes
 
 - Program menggunakan multithreading selama konstruksi octree untuk performa yang lebih baik
 - Bagian sub-kubus yang kosong dipangkas untuk mengoptimalkan penggunaan memori
 - Viewer dapat dinavigasi dengan kontrol mouse dan keyboard
+
+# LICENSE
+MIT License
