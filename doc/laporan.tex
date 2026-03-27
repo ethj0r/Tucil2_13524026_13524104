@@ -21,6 +21,10 @@
 \usepackage{subcaption}
 \graphicspath{{./}{./assets/}{./images/}}
 
+% --- TikZ ---
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, shapes.misc, arrows.meta, positioning, calc}
+
 \usepackage{listings}
 \usepackage{xcolor}
 
@@ -53,6 +57,9 @@
 
 \usepackage{booktabs}
 \usepackage{tabularx}
+
+% Setiap \section mulai dari halaman baru
+\AddToHook{cmd/section/before}{\clearpage}
 
 \usepackage{hyperref}
 \hypersetup{
@@ -108,11 +115,8 @@
 \tableofcontents
 \newpage
 
+%INTRODUCTION
 \section{Introduction}
-% Context: why voxelization matters (games, simulations, 3D printing).
-% Problem statement: convert polygon mesh (.obj) to uniform voxel grid.
-% Scope: surface voxelization using Octree with Divide and Conquer.
-% Report structure overview.
 Dalam \textit{computer graphic}, objek 3D itu umumnya disimpan sebagai \textit{polygon mesh}.
 Format ini fleksibel dan ringan tetapi tidak selalu cocok untuk kebutuhan tertentu.
 Seperti yang kita tau, \textit{grid based physics simulations}, \textit{3D printing}, hingga
@@ -140,6 +144,7 @@ kami juga mengimplementasikan dua fitur bonus yaitu \textit{concurrency} untuk p
 rekursif pada octree menggunakan \texttt{std::thread} serta \textit{interactive 3D viewer}
 dengan raylib yang memungkinkan user melakukan eksplorasi hasil voxelization.
 
+%THEORITICAL BACKGROUND
 \section{Theoretical Background}\label{sec:teori}
 \subsection{Voxelization}
 Secara sederhana, \textit{voxelization} adalah proses mengubah model 3D yang mulus
@@ -158,7 +163,7 @@ misalnya untuk \textit{3D printing}, visualisasi permainan, dan masih banyak con
 \subsection{Octree}
 \textit{Octree} adalah struktur data hierarkis untuk partisi ruang 3D. Satu node merepresentasikan
 sebuah \textit{axis-aligned bounding box} (AABB) berbentuk kubus, lalu node tersebut dibagi menjadi
-8 anak kubus yang ukurannya setengah pada masing-masing sumbu. Proses pembagian ini bisa dilakukan
+8 child kubus yang ukurannya setengah pada masing-masing sumbu. Proses pembagian ini bisa dilakukan
 berulang sampai kedalaman tertentu.
 
 Kelebihan utama Octree adalah kemampuannya melakukan \textit{adaptive refinement}. Area ruang yang
@@ -202,14 +207,295 @@ dan 9 sumbu hasil \textit{cross product} antara 3 edge segitiga dengan 3 sumbu A
 Jika pada semua sumbu tersebut proyeksi kedua objek saling overlap, maka segitiga
 dan AABB dinyatakan berpotongan.
 
+%DIVIDE AND CONQUER
 \section{Divide and Conquer Algorithm}\label{sec:algo}
-\subsection{High-Level Steps}
-% Step-by-step description of the algorithm (not just pseudocode).
-\subsection{Pseudocode}
-% Formal pseudocode for the recursive voxelization.
-\subsection{Complexity Analysis}
-% Time and space complexity in terms of depth N and triangle count T.
 
+Sekarang kita masuk ke inti dari project ini. Bagaimana \textit{Divide and Conquer} benar-benar
+bekerja di dalam proses voxelization. Untuk SAT test-nya sendiri, kita mengacu pada paper
+Akenine-M\"oller\footnote{T. Akenine-M\"oller,
+``Fast 3D Triangle-Box Overlap Testing,'' \textit{Journal of Graphics Tools}, vol.~6, no.~1, 2001.}
+yang memang jadi standar untuk triangle-AABB intersection. Sedangkan konsep octree-based
+voxelization-nya terinspirasi dari Schwarz dan
+Seidel\footnote{M.~Schwarz dan H.-P.~Seidel, ``Fast Parallel Surface and Solid Voxelization on GPUs,''
+\textit{ACM Transactions on Graphics}, vol.~29, no.~6, 2010.},
+meskipun paper mereka target-nya GPU, kita adapt untuk CPU secara sequential
+(plus concurrency sebagai bonus).
+
+\subsection{High-Level Steps}
+
+Pertama tama, bungkus seluruh model dalam satu kotak besar, lalu potong-potong
+secara rekursif. Di setiap level, lakukan pengecekan ``ada segitiga mesh yang menyentuh kotak ini
+tidak?'' Kalau tidak ada, buang (pruned). Kalau ada dan sudah di level terdalam, itu voxel. Kalau ada
+tapi belum cukup dalam, potong lagi jadi 8 child.
+
+Untuk lebih detail, prosesnya seperti berikut ini.
+
+\begin{enumerate}
+    \item \textbf{Bungkus model dalam bounding box.}
+    Pertama, kita hitung AABB terkecil yang membungkus semua vertex. Lalu kita normalisasi
+    jadi kubus sempurna, pakai sisi terpanjang sebagai acuan. Kenapa harus kubus sempurna?
+    Karena kalau tidak, voxel di leaf level ukurannya tidak seragam, dan hasilnya jadi aneh.
+
+    \item \textbf{Filter segitiga pakai SAT.}
+    Untuk kotak saat ini, kita loop semua segitiga dan cek satu per satu: ``segitiga ini
+    berpotongan dengan kotak ini?'' Cek-nya pakai SAT dengan 13 sumbu uji. Yang lolos
+    kemudian dikumpulkan di list \texttt{intersecting}, sisanya tidak perlu diteruskan ke level
+    berikutnya.
+
+    \item \textbf{Pruning. Kotak kosong langsung dibuang.}
+    Jika \texttt{intersecting}-nya kosong, berarti tidak ada permukaan objek di area ini.
+    Node langsung di-mark sebagai \textit{pruned}, rekursi stop. Mayoritas ruang 3D itu
+    kosong, jadi mayoritas node itu di-prune.
+
+    \item \textbf{Leaf node. Save sebagai voxel.}
+    Jika depth sudah sama dengan \texttt{maxDepth} dan masih ada segitiga yang menyentuh,
+    berarti kotak ini valid sebagai voxel. Langsung push ke \texttt{result.voxels}.
+
+    \item \textbf{Divide. Split jadi 8 child.}
+    Jika belum \texttt{maxDepth} dan masih ada segitiga, kotak dipotong jadi 8 sub-kubus.
+    Dengan cara split titik tengah di setiap sumbu (X, Y, Z). Di implementasi, kita pakai
+    bit manipulation, index 0--7 menentukan kombinasi half-space di tiap sumbu.
+
+    \item \textbf{Conquer. Rekursi tiap child.}
+    Setiap child di-handle independently, masing-masing cuma nerima segitiga yang sudah
+    difilter (bukan seluruh mesh). Proses berulang dari step 2. Karena tiap subtree
+    itu saling independen, ini juga yang bikin concurrency-nya natural.
+
+    \item \textbf{Combine. Kumpulkan semua voxel.}
+    Setelah semua cabang rekursi selesai, semua leaf node dari setiap subtree terkumpul
+    jadi satu list. List itulah yang akhirnya kita export jadi file \texttt{.obj}.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        node distance=1.2cm and 0.5cm,
+        startstop/.style={rounded rectangle, draw, fill=codebg, minimum width=3.2cm,
+            minimum height=0.8cm, font=\small\ttfamily},
+        process/.style={rectangle, draw, fill=codebg, minimum width=3.8cm,
+            minimum height=0.8cm, font=\small},
+        decision/.style={diamond, draw, fill=yellow!12, minimum width=2.2cm,
+            minimum height=1cm, font=\small, aspect=2.2, inner sep=1pt},
+        result/.style={rectangle, draw, fill=green!15, minimum width=3cm,
+            minimum height=0.8cm, font=\small, rounded corners=3pt},
+        pruned/.style={rectangle, draw, fill=black!8, minimum width=3cm,
+            minimum height=0.8cm, font=\small, rounded corners=3pt},
+        arr/.style={-{Stealth[length=2.5mm]}, thick},
+        lbl/.style={font=\footnotesize, fill=white, inner sep=1.5pt}
+    ]
+        %Nodes
+        \node[startstop] (start) {buildOctree(box, tri, d)};
+        \node[process, below=of start] (filter) {Filter segitiga: SAT test};
+        \node[decision, below=1.3cm of filter] (empty) {\shortstack{intersecting\\kosong?}};
+        \node[decision, below=1.3cm of empty] (leaf) {\shortstack{depth ==\\maxDepth?}};
+        \node[process, below=1.3cm of leaf] (split) {Split box $\to$ 8 child};
+        \node[startstop, below=of split] (recurse) {buildOctree(child, ...)};
+
+        %Side results
+        \node[pruned, right=2.5cm of empty] (prune) {Pruned (stop)};
+        \node[result, right=2.5cm of leaf] (voxel) {Simpan sebagai voxel};
+
+        %Arrows
+        \draw[arr] (start) -- (filter);
+        \draw[arr] (filter) -- (empty);
+        \draw[arr] (empty) -- node[lbl, left] {Tidak} (leaf);
+        \draw[arr] (empty) -- node[lbl, above] {Ya} (prune);
+        \draw[arr] (leaf) -- node[lbl, left] {Tidak} (split);
+        \draw[arr] (leaf) -- node[lbl, above] {Ya} (voxel);
+        \draw[arr] (split) -- node[lbl, left] {$\times\,8$} (recurse);
+
+        %Loop back
+        \draw[arr, dashed] (recurse.west) -- ++(-1.8,0) |- (filter.west);
+    \end{tikzpicture}
+    \caption{Flow chart keputusan pada setiap level rekursi \texttt{buildOctree}.}
+    \label{fig:flowchart-octree}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{assets/subdiv-step1.png}
+        \caption{Bounding box awal membungkus seluruh objek.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{assets/subdiv-step2.png}
+        \caption{Dibagi 4 (2D). Kotak kosong di-prune (abu-abu).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{assets/subdiv-step3.png}
+        \caption{Subdivisi lanjutan pada kotak yang tersisa.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{assets/subdiv-step4.png}
+        \caption{Level terdalam: kotak hijau = voxel akhir.}
+    \end{subfigure}
+    \caption{Ilustrasi 2D (quadtree) dari proses subdivisi bertahap. Pada 3D,
+    setiap kotak dibagi menjadi 8 (bukan 4), tetapi prinsipnya identik.}
+    \label{fig:subdivision-steps}
+\end{figure}
+
+\subsection{Pseudocode}
+
+Pseudocode di bawah ini merepresentasikan fungsi \texttt{buildOctree} yang jadi core dari
+seluruh proses. Fungsinya cukup compact, terima kotak, daftar segitiga, depth saat ini,
+dan depth maksimum, lalu bangun octree secara top-down.
+
+\begin{figure}[H]
+\begin{lstlisting}[language={},morekeywords={function,for,each,in,if,then,return,end},
+    title={\textbf{BuildOctree}, Rekursi Divide and Conquer},
+    label={alg:buildoctree}]
+function BuildOctree(box, triangles, depth, maxDepth):
+    // Input:  box (AABB), triangles (daftar segitiga),
+    //         depth (kedalaman saat ini), maxDepth (kedalaman maks)
+    // Output: leaf nodes (voxel) ditambahkan ke result
+
+    nodesPerDepth[depth] += 1
+
+    // Filter: hanya simpan segitiga yang menyentuh kotak ini
+    intersecting = []
+    for each tri in triangles:
+        if IntersectsTriangleBox(tri, box) then
+            intersecting.append(tri)
+        end if
+    end for
+
+    // Pruning: tidak ada segitiga -> kotak kosong
+    if intersecting is empty then
+        prunedPerDepth[depth] += 1
+        return
+    end if
+
+    // Base case: kedalaman maksimum tercapai -> voxel
+    if depth == maxDepth then
+        result.voxels.append(box)
+        return
+    end if
+
+    // Divide: potong kotak menjadi 8 sub-kubus
+    children = SplitBox(box)
+
+    // Conquer: rekursi ke setiap child secara independen
+    for each child in children:
+        BuildOctree(child, intersecting, depth + 1, maxDepth)
+    end for
+end function
+\end{lstlisting}
+\end{figure}
+
+\texttt{IntersectsTriangleBox} itu SAT test lengkap 13 sumbu yang
+sudah dibahas di Bagian~\ref{sec:teori}. Dan \texttt{SplitBox} tinggal bagi kotak jadi 8
+pakai midpoint tiap sumbu. Satu hal penting, di step \textit{Conquer}, tiap child cuma
+nerima segitiga yang sudah difilter (\texttt{intersecting}), bukan seluruh mesh. Jadi semakin
+dalam level-nya, semakin sedikit segitiga yang perlu dicek.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        level distance=2cm,
+        sibling distance=1.2cm,
+        every node/.style={circle, draw, minimum size=6mm, font=\scriptsize\bfseries, inner sep=0pt},
+        internal/.style={fill=white},
+        pruned/.style={fill=black!15, text=black!50},
+        voxel/.style={fill=green!30},
+        edge from parent/.style={draw, -{Stealth[length=2mm]}, thin},
+        level 1/.style={sibling distance=3.2cm},
+        level 2/.style={sibling distance=0.9cm},
+    ]
+        \node[internal] (root) {R}
+            child { node[internal] (n1) {1}
+                child { node[voxel] (leaf0) {v} }
+                child { node[pruned] {$\times$} }
+                child { node[voxel] {v} }
+                child { node[pruned] {$\times$} }
+            }
+            child { node[pruned] {$\times$} }
+            child { node[internal] (n3) {3}
+                child { node[pruned] {$\times$} }
+                child { node[voxel] {v} }
+                child { node[voxel] {v} }
+                child { node[voxel] {v} }
+            }
+            child { node[pruned] {$\times$} }
+        ;
+
+        %Depth labels
+        \node[draw=none, fill=none, font=\normalsize, anchor=east]
+            at ([xshift=-1.2cm]leaf0.west |- root) {depth 0};
+        \node[draw=none, fill=none, font=\normalsize, anchor=east]
+            at ([xshift=-1.2cm]leaf0.west |- n1) {depth 1};
+        \node[draw=none, fill=none, font=\normalsize, anchor=east]
+            at ([xshift=-1.2cm]leaf0.west |- leaf0) {depth 2};
+
+        %Legend
+        \matrix[draw=none, fill=none, below=-1.5cm of current bounding box.south,
+            column sep=8pt, font=\small, anchor=north] {
+            \node[circle,draw,fill=white,minimum size=5mm,inner sep=0pt,font=\tiny]{}; &
+            \node[draw=none]{internal}; &
+            \node[circle,draw,fill=black!15,minimum size=5mm,inner sep=0pt,font=\tiny]{$\times$}; &
+            \node[draw=none]{pruned}; &
+            \node[circle,draw,fill=green!30,minimum size=5mm,inner sep=0pt,font=\tiny]{v}; &
+            \node[draw=none]{voxel}; \\
+        };
+    \end{tikzpicture}
+    \caption{Recursion tree pada octree depth 2 (disederhchildan, 4 child per node).
+    Node pruned (abu-abu) tidak ditelusuri lebih lanjut. Hanya leaf hijau yang jadi voxel akhir.}
+    \label{fig:recursion-tree}
+\end{figure}
+
+\subsection{Complexity Analysis}
+
+Misalkan $N$ = \texttt{maxDepth} dan $T$ = jumlah segitiga di mesh input.
+
+\textbf{Worst case (tanpa pruning).}
+Kalau tidak ada node yang di-prune sama sekali (kasus yang unlikely tapi tetap worth dianalisis),
+setiap node punya 8 child di setiap level. Total node:
+\[
+\sum_{d=0}^{N} 8^d = \frac{8^{N+1} - 1}{7}
+\]
+Di setiap node, kita jalankan SAT test ke semua segitiga yang diteruskan. SAT test sendiri
+$O(1)$ per segitiga (13 axis, operasi aritmatika konstan). Jadi worst case totalnya
+$O(8^N \cdot T)$. Untuk gambaran, $N = 7$ saja itu sudah 2 juta node, kalikan dengan $T$
+segitiga per node, angkanya jadi sangat besar.
+
+\textbf{Average case (dengan pruning).}
+Di praktiknya, pruning memangkas mayoritas node. Model 3D tipikal itu cuma menempati
+sebagian kecil bounding box-nya, sisanya kosong. Jadi di setiap level, cuma node yang
+kena permukaan objek yang ditelusuri lebih lanjut. Ditambah lagi, filtering segitiga di
+tiap level juga bantu, semakin dalam, semakin sedikit segitiga yang relevan buat node
+tertentu.
+
+Jumlah voxel yang dihasilkan itu proporsional terhadap luas permukaan
+objek, bukan volume bounding box. Kompleksitas aktualnya jauh di bawah worst case.
+
+\textbf{Space complexity.}
+Kita tidak menyimpan tree secara eksplisit, yang disimpan cuma leaf nodes (voxel) di
+\texttt{result.voxels}. Jadi space untuk output itu $O(V)$ di mana $V$ = jumlah voxel.
+Call stack rekursi memakan $O(N)$ depth, dan di setiap level ada salinan list segitiga
+yang sudah difilter.
+
+\begin{table}[H]
+\centering
+\caption{Pertumbuhan node maksimum vs.\ aktual (tipikal) per depth.}
+\label{tab:growth}
+\begin{tabular}{@{}crl@{}}
+\toprule
+\textbf{Depth ($N$)} & \textbf{Max nodes ($8^N$)} & \textbf{Catatan} \\
+\midrule
+1 & 8 & Selalu terjangkau \\
+2 & 64 & Masih sangat cepat \\
+3 & 512 & Umumnya $<$ 200 node aktual \\
+5 & 32.768 & Pruning memangkas $>$ 80\% \\
+7 & 2.097.152 & Butuh pruning \\
+10 & 1.073.741.824 & Tidak praktis tanpa pruning \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+%IMPLEMENTATION
 \section{Implementation}\label{sec:impl}
 \subsection{System Architecture}
 Implementasi program dibagi menjadi beberapa modul sehingga tiap komponen punya tugas yang jelas:
@@ -265,7 +551,7 @@ Secara rekursif, \texttt{buildOctree()} melakukan proses berikut pada setiap nod
     \item Jika belum, box dibagi jadi 8 child dan diproses rekursif.
 \end{enumerate}
 
-\subsection{Key Implementation Details}
+\subsection{Implementation Details}
 Beberapa keputusan implementasi penting yang memengaruhi hasil akhir:
 
 \begin{itemize}
