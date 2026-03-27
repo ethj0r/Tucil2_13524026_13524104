@@ -1,54 +1,54 @@
-# Voxelusasi Objek 3D Menggunakan Octree
+# Voxelization Objek 3D Menggunakan Octree
 
 ## Deskripsi Program
 
-Program ini mengubah model 3D berbentuk mesh (file OBJ) menjadi representasi diskrit berupa voxel (kubus-kubus kecil) menggunakan struktur data octree. Setiap voxel merupakan bounding box berbentuk kubus yang menandai area di mana model 3D tersebut ada.
+Program ini mengubah model 3D berbentuk mesh (*file OBJ*) menjadi representasi voxel (*kubus kecil*)  menggunakan struktur data octree. Setiap voxel merupakan bounding box berbentuk kubus yang menandai area di mana model 3D tersebut ada.
 
-**Proses Kerja:**
-1. Membaca berkas model 3D dalam format OBJ
-2. Membagi ruang 3D menjadi grid hierarki menggunakan octree
-3. Menentukan voxel yang berpotongan dengan permukaan model (segitiga)
-4. Menyimpan hasil voxel sebagai berkas OBJ dan menampilkannya secara visual
+## Teori Singkat
 
-**Aplikasi Praktis:**
-- **Deteksi Tabrakan (Collision Detection)**: Memeriksa interaksi antar objek dengan lebih cepat
-- **Indeks Spasial**: Pencarian cepat objek berdasarkan lokasi di ruang 3D
-- **Rendering Volumetrik**: Menampilkan volume dan kepadatan objek
-- **Permainan dan Simulasi Fisika**: Optimasi komputasi pada objek 3D yang kompleks
+### Voxelization
 
-## Teori
-
-### Voxelusasi
-
-Voxelusasi adalah proses membagi model 3D menjadi unit-unit kubus kecil yang disebut voxel. Sebagai analogi, bayangkan model patung dibagi menjadi banyak kotak kecil berukuran sama. Selanjutnya, ditentukan kotak mana yang berpotongan dengan permukaan model.
+Voxelization adalah proses membagi model 3D menjadi unit-unit kubus kecil yang disebut voxel. Sebagai analogi, bayangkan model patung dibagi menjadi banyak kotak kecil berukuran sama. Selanjutnya, ditentukan kotak mana yang berpotongan dengan permukaan model.
 
 Setiap unit voxel diberi status:
 - **Kosong**: Tidak menyentuh objek model
 - **Terisi**: Berisi bagian dari permukaan atau volume model
 
-Hasil akhirnya adalah model 3D yang tidak lagi halus (smooth), melainkan terdiri dari kumpulan kubus-kubus diskrit.
+Hasil akhirnya adalah model 3D yang tidak lagi halus, tetapi terdiri dari kumpulan kubus-kubus diskrit.
 
 ### Struktur Octree
 
-Octree adalah struktur hierarki untuk membagi ruang 3D secara efisien dalam proses voxelusasi. Prinsip kerjanya sebagai berikut:
+Octree adalah struktur hierarki untuk membagi ruang 3D secara efisien dalam proses voxelization. Prinsip kerjanya sebagai berikut:
 
-1. **Level 1**: Ruang dibagi menjadi 8 subregion yang sama (struktur 2×2×2)
+1. **Level 1**: Ruang dibagi menjadi 8 subregion yang sama (*struktur 2×2×2*)
 2. **Level 2**: Setiap subregion yang memotong model dibagi lagi menjadi 8 bagian lebih kecil
 3. **Level 3**: Pembagian berlanjut sampai mencapai kedalaman maksimum yang ditentukan
-4. **Optimasi**: Subregion yang kosong (tidak memotong model) tidak dibagi lebih lanjut
+4. **Optimasi**: Subregion yang kosong (tidak memotong model) tidak dibagi lebih lanjut (*pruning*)
+
+Dalam program ini, octree dibangun secara rekursif dengan:
+1. Membagi bounding box menjadi 8 bagian
+2. Menguji bagian mana yang berpotongan dengan segitiga
+3. Rekursif membagi bagian tersebut yang berpotongan hingga kedalaman maksimum
+4. Menyimpan node daun sebagai voxel
 
 **Keuntungan:**
 - **Efisiensi Memori**: Hanya menyimpan region yang berpotongan dengan model, menghemat ruang penyimpanan
-- **Adaptif**: Area dengan geometri kompleks dibagi lebih banyak tingkat, area sederhana tidak perlu dibagi banyak
+- **Adaptif**: Area dengan geometri kompleks dibagi lebih banyak tingkat, sedangkan area sederhana tidak perlu dibagi banyak
 - **Akses Cepat**: Struktur hierarki memungkinkan pencarian dan akses data lebih cepat
+
+## Proses Kerja:
+1. Membaca file model 3D dalam format OBJ
+2. Membagi ruang 3D menjadi grid hierarki menggunakan octree
+3. Menentukan voxel mana yang berpotongan dengan permukaan model (segitiga)
+4. Menyimpan hasil voxel sebagai file OBJ baru dan menampilkannya secara visual
 
 ## Persyaratan
 
 ### Perangkat Lunak
 - **C++ Compiler**: C++17 atau lebih baru (clang++ atau g++)
 - **Build Tool**: GNU Make
-- **pkg-config**: Untuk pengelolaan perpustakaan
-- **Raylib**: Perpustakaan grafis untuk visualisasi 3D (versi 4.0+)
+- **pkg-config**: Untuk manajemen library
+- **Raylib**: Library grafis untuk visualisasi 3D (v4.0+)
 
 ### Dependensi Sistem
 
@@ -75,62 +75,29 @@ brew install raylib pkg-config
 ### Kompilasi
 
 Navigasi ke direktori `src` dan jalankan:
-
-**Untuk clean build (direkomendasikan pada kali pertama atau saat ada masalah):**
 ```bash
 cd src
 make clean
 make run
 ```
 
-**Untuk build inkremental (setelah kompilasi pertama):**
-```bash
-cd src
-make run
-```
-
-**Penjelasan:**
-- `make clean` menghapus semua artifact kompilasi untuk memastikan pembangunan dari awal
-- `make run` secara otomatis mengompilasi hanya berkas yang berubah, kemudian menjalankan program
-- Jika tidak ada perubahan pada berkas sumber, `make run` langsung menjalankan executable yang telah ada
-
-Berkas executable dihasilkan di `../bin/voxelizer`.
-
-**Catatan untuk pengguna Windows:**
-- Bisa menggunakan **MinGW/MSYS2** (lihat bagian Dependensi Sistem) untuk kompilasi langsung di Windows
-- Alternatif lain adalah menggunakan **WSL (Windows Subsystem for Linux)** dan mengikuti instruksi Linux
-- Tidak wajib menggunakan WSL, MinGW/MSYS2 sudah cukup untuk mengompilasi program ini
-
-### Menjalankan Program
-
-Dari direktori `src`:
-```bash
-./voxelizer
-```
-
-Atau:
-```bash
-make run
-```
-
 ### Input
 
-Ketika program dimulai, pengguna diminta untuk memasukkan:
+Ketika program dimulai, akan diminta untuk memasukkan:
 
-1. **Path ke berkas .obj**: Masukkan path relatif atau absolut ke berkas model 3D dalam format OBJ
-   - Contoh: `../test/model.obj`
+1. **Path ke file .obj**: Masukkan path relatif atau absolut ke file model 3D dalam format OBJ
+   - Contoh: `../test/cube.obj`
 
-2. **Kedalaman maksimum octree**: Masukkan level kedalaman maksimum untuk octree (integer >= 1)
-   - Nilai lebih besar menghasilkan voxel lebih halus tetapi memerlukan komputasi lebih banyak
-   - Rentang umum: 5-12
+2. **Kedalaman maksimum octree**: Masukkan level kedalaman maksimum untuk octree (*min 1*)
+   - Nilai lebih besar = voxel lebih halus, tetapi lebih mahal secara komputasi (*membutuhkan waktu yang lebih lama*)
 
 ### Output
 
-- **Model Voxelisasi**: Disimpan sebagai `../test/output.obj` berisi representasi voxel dalam bentuk mesh
-- **Viewer 3D**: Jendela visualisasi interaktif terbuka secara otomatis untuk menampilkan model voxelisasi
-- **Statistik**: Keluaran konsol menampilkan:
-  - Jumlah vertex dan segitiga pada model masukan
-  - Statistik octree (jumlah node per tingkat kedalaman, node yang dipangkas)
+- **Model Voxelisasi**: Disimpan sebagai `output.obj` dalam folder `test`  yang berisi representasi voxel sebagai mesh
+- **Viewer 3D**: Visualisasi interaktif terbuka secara otomatis menampilkan model voxelisasi
+- **Statistik**: Output console menampilkan:
+  - Jumlah vertex dan segitiga input
+  - Statistik octree (jumlah node per level kedalaman, node yang dipangkas)
   - Waktu eksekusi (dalam milidetik)
   - Total jumlah voxel
 
@@ -139,52 +106,65 @@ Ketika program dimulai, pengguna diminta untuk memasukkan:
 ```
 .
 ├── src/
-│   ├── main.cpp                    # Titik masuk program
-│   ├── Makefile                    # Konfigurasi build
+│   ├── main.cpp                    
+│   ├── Makefile                    
 │   ├── model/                      # Struktur data
-│   │   ├── Mesh.{cpp,hpp}         # Representasi mesh 3D
-│   │   ├── Triangle.{cpp,hpp}     # Struktur data segitiga
-│   │   ├── Vector.{cpp,hpp}       # Operasi vektor 3D
-│   │   └── BoundingBox.{cpp,hpp}  # Definisi kotak pembatas
-│   ├── parser/                     # Parser berkas
-│   │   └── ObjParser.{cpp,hpp}    # Parser berkas OBJ
+│   │   ├── Mesh.{cpp,hpp}         
+│   │   ├── Triangle.{cpp,hpp}     
+│   │   ├── Vector.{cpp,hpp}       
+│   │   └── BoundingBox.{cpp,hpp}  
+│   ├── parser/                     # Parsing file
+│   │   └── ObjParser.{cpp,hpp}    
 │   ├── octree/                     # Algoritma utama
-│   │   └── Octree.{cpp,hpp}       # Pembangunan octree
-│   ├── exporter/                   # Pengekspor keluaran
-│   │   └── ObjExporter.{cpp,hpp}  # Ekspor ke format OBJ
+│   │   └── Octree.{cpp,hpp}       
+│   ├── exporter/                   # Export ke format OBJ
+│   │   └── ObjExporter.{cpp,hpp}  
 │   ├── viewer/                     # Visualisasi
-│   │   ├── Viewer.{cpp,hpp}       # Visualisasi dengan Raylib
-│   │   └── fonts/                 # Aset font
-│   └── stats/                      # Pengumpulan statistik
-│       └── stats.{cpp,hpp}        # Metrik kinerja
-├── bin/                            # Berkas biner terkompilasi (dihasilkan)
-├── test/                           # Model uji dan keluaran
-├── doc/                            # Dokumentasi
-│   └── laporan.tex                # Laporan teknis
-└── README.md                       # File ini
+│   │   ├── Viewer.{cpp,hpp}       
+│   │   └── fonts/                 
+│   └── stats/                      # Statistik
+│       └── stats.{cpp,hpp}       
+├── bin/                            
+├── test/                           
+├── doc/                          
+│   └── laporan.tex                
+└── README.md                       
 ```
 
-## Contoh Penggunaan
+## Contoh Output
 
 ```
-Path ke .obj file: ../test/model.obj
-Max depth octree: 8
+Path ke .obj file: ../test/cow.obj
+Max depth octree: 4
 
-Mesh loaded: 100 vertices, 50 triangles
+Mesh loaded: 8 vertices, 12 triangles
 
-Execution time: 45.23 ms
+VOXELIZATION REPORT
+Voxel count    : 1352
+Vertex count   : 10816
+Face count     : 16224
 
---- Octree Statistics ---
-Total voxels: 1024
-Nodes per depth: [1, 8, 64, 512, 2048]
-Pruned nodes per depth: [0, 2, 15, 120]
+Octree nodes per depth:
+  0 : 1
+  1 : 8
+  2 : 64
+  3 : 448
+  4 : 2368
 
-Jendela Viewer 3D terbuka...
+Pruned nodes per depth:
+  0 : 0
+  1 : 0
+  2 : 8
+  3 : 152
+  4 : 1016
+
+Octree depth   : 4
+Execution time : 3.43505 ms
 ```
 
-## Keterangan Penting
 
-- Program menggunakan multithreading selama pembangunan octree untuk meningkatkan kinerja
-- Subregion kosong dipangkas untuk mengoptimalkan penggunaan memori
-- Viewer dapat dinavigasi menggunakan kontrol mouse dan keyboard (lihat dokumentasi Raylib)
-- Berkas format OBJ harus valid dengan definisi vertex dan face yang benar
+## Catatan
+
+- Program menggunakan multithreading selama konstruksi octree untuk performa yang lebih baik
+- Bagian sub-kubus yang kosong dipangkas untuk mengoptimalkan penggunaan memori
+- Viewer dapat dinavigasi dengan kontrol mouse dan keyboard
