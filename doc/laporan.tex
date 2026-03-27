@@ -823,13 +823,112 @@ Secara umum, manfaat utama fitur ini adalah:
 
 \subsection{Interactive 3D Viewer}
 
+Setelah voxelization selesai dan file \texttt{.obj} sudah ter-generate, ada fitur viewer.
+Hasil file \texttt{.obj} pada dasarnya bisa dibuka melalui Blender, tetapi cenderung overkill
+untuk sekadar cek apakah bentuknya masuk akal.
+
+Viewer ini dibangun menggunakan \textbf{raylib} (C++, cross-platform), dan
+sifatnya fully interactive. Begitu proses voxelization dan export selesai, program langsung
+membuka window baru yang menampilkan seluruh voxel hasil konversi dalam 3D space.
+
+\subsubsection*{Camera System}
+
+Kamera menggunakan model \textit{spherical orbit} yang mengelilingi pusat scene.
+User bisa kontrol penuh lewat mouse. Selain itu, kamera juga bisa otomatis \textit{auto-orbit}
+mengelilingi objek dengan kecepatan yang bisa diatur lewat slider (0 sampai 5$\times$ multiplier).
+
+\subsubsection*{Render Modes}
+
+Ada tiga mode render yang bisa di-cycle dengan key \texttt{[W]}:
+
+\begin{enumerate}
+    \item \textbf{Solid + Wireframe} (default). face solid dengan overlay wireframe semi-transparan.
+    \item \textbf{Solid}. face solid tanpa wireframe jadi lebih clean.
+    \item \textbf{Wireframe only}. hanya edge yang dirender, interior transparan.
+\end{enumerate}
+
+\subsubsection*{Cross-Section Clipping}
+
+Fitur tambahan. Ini fitur yang mungkin paling berguna untuk analisis. Ada slider \textit{clip Y}
+yang bisa digeser dari $-1.0$ sampai $1.0$, dan semua voxel di atas garis potong
+itu langsung disembunyikan.
+
+\subsubsection*{Explode View}
+
+Dengan key \texttt{[E]}, semua voxel bisa di-``explode'' secara radial dari pusat
+scene. Fitur ini sebenarnya tambahan juga dan berguna untuk melihat distribusi spasial
+voxel secara individual, terutama di bagian yang biasanya tertutup voxel lain.
+
+
 \section{Conclusion}\label{sec:kesimpulan}
-% Summary of achievements, lessons learned, potential future work.
+
+Dari hasil pengujian pada lima model (cube, sphere, cylinder, teapot, torus) dengan
+depth 4, program berhasil menghasilkan output voxel yang secara visual merepresentasikan
+bentuk asli masing-masing objek. Waktu eksekusi berada di miliseconds untuk depth
+menengah, yang menunjukkan bahwa pruning bekerja efektif. Pengujian pengaruh depth
+pada \texttt{cube.obj} juga mengkonfirmasi trade-off antara resolusi dan biaya komputasi,
+semakin tinggi depth, semakin detail hasilnya, tapi jumlah node dan waktu eksekusi
+naik secara signifikan.
+
+Dua fitur bonus juga berhasil diimplementasikan. Pertama, \textit{concurrency}
+dengan \texttt{std::thread} dan proteksi \texttt{mutex} pada shared state, di mana
+kerangka paralelisasi sudah tersedia meskipun secara default dijalankan konservatif
+untuk menjaga stabilitas. Kedua, \textit{interactive 3D viewer} dengan raylib yang
+menyediakan orbit camera, multiple render modes, cross-section clipping, dan explode
+view, sehingga user bisa langsung memvalidasi hasil voxelization tanpa tool eksternal.
 
 \newpage
 \section*{Repository}
 \addcontentsline{toc}{section}{Repository}
 
 \url{https://github.com/ethj0r/Tucil2_13524026_13524104}
+
+\bigskip
+\begingroup
+\noindent{\Large\bfseries Lampiran}
+\addcontentsline{toc}{section}{Lampiran}
+\endgroup
+\medskip
+
+\begin{table}[H]
+    \centering
+    \caption{Checklist kelengkapan program}
+    \begin{tabular}{clcc}
+        \toprule
+        \textbf{No} & \textbf{Poin} & \textbf{Ya} & \textbf{Tidak} \\
+        \midrule
+        1 & Program berhasil dikompilasi tanpa kesalahan & $\checkmark$ & \\
+        2 & Program berhasil dijalankan & $\checkmark$ & \\
+        3 & Hasil konversi \texttt{.obj} terdiri dari kubus-kubus kecil & $\checkmark$ & \\
+        4 & Program menampilkan informasi-informasi atau report & $\checkmark$ & \\
+        5 & Program dapat menerima masukan \texttt{.obj} dan mengembalikan output & $\checkmark$ & \\
+        6 & {[Bonus]} Program menggunakan concurrency & $\checkmark$ & \\
+        7 & {[Bonus]} Program dapat menampilkan visualisasi \texttt{.obj} & $\checkmark$ & \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\vspace{2cm}
+
+\noindent
+Tugas ini disusun sepenuhnya tanpa bantuan kecerdasan buatan (Generative AI),
+melainkan hasil pemikiran dan analisis mandiri.
+
+\vspace{2cm}
+
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+    \centering
+    {[Tanda tangan mahasiswa 1]}\\[1.5cm]
+    \textbf{Made Branenda Jordhy}\\
+    13524026
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+    \centering
+    {[Tanda tangan mahasiswa 2]}\\[1.5cm]
+    \textbf{Valentino Daniel Kusumo}\\
+    13524104
+\end{minipage}
 
 \end{document}
