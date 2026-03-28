@@ -333,7 +333,7 @@ Untuk lebih detail, prosesnya seperti berikut ini.
     \hfill
     \begin{subfigure}[b]{0.22\textwidth}
         \includegraphics[width=\textwidth]{assets/subdiv-step4.png}
-        \caption{Level terdalam: kotak hijau = voxel akhir.}
+        \caption{Level terdalam: kotak hijau yang menandakan voxel akhir.}
     \end{subfigure}
     \caption{Ilustrasi 2D (quadtree) dari proses subdivisi bertahap. Pada 3D,
     setiap kotak dibagi menjadi 8 (bukan 4), tetapi prinsipnya identik.}
@@ -596,7 +596,7 @@ Beberapa keputusan implementasi penting yang memengaruhi hasil akhir:
 \end{itemize}
 
 \section{Results and Analysis}\label{sec:hasil}
-Pada bab ini, pengujian dilakukan dengan parameter depth octree tetap ($d=4$) untuk perbandingan antar-model.
+Pada bab ini, pengujian dilakukan dengan parameter \textbf{depth octree tetap ($d=4$)} untuk perbandingan antar-model.
 Setiap pengujian menghasilkan metrik yang dicetak oleh program:
 jumlah voxel, jumlah vertex/face hasil ekspor, distribusi node octree,
 jumlah node yang ter-prune, serta waktu eksekusi.
@@ -610,7 +610,7 @@ Secara umum, metrik yang diamati adalah:
 \end{itemize}
 
 \subsection{Test Case 1}
-\textbf{Model:} \texttt{cube.obj}, \textbf{depth:} 4
+\textbf{Model:} \texttt{cube.obj}
 
 \begin{figure}[H]
     \centering
@@ -626,7 +626,7 @@ Secara umum, metrik yang diamati adalah:
         {\small (b) Hasil voxelization}
     \end{minipage}
     \hfill
-    \begin{minipage}[c]{0.34\textwidth}
+    \begin{minipage}[c]{0.30\textwidth}
         \centering
         \small
         \begin{tabular}{lr}
@@ -644,7 +644,7 @@ Secara umum, metrik yang diamati adalah:
             \bottomrule
         \end{tabular}
     \end{minipage}
-    \caption{Voxelization \texttt{cube.obj} (depth 4)}
+    \caption{Voxelization \texttt{cube.obj}}
     \label{fig:tc-cube}
 \end{figure}
 
@@ -653,7 +653,7 @@ terdistribusi merata pada sisi-sisi AABB, sehingga banyak leaf level akhir
 tetap relevan.
 
 \subsection{Test Case 2}
-\textbf{Model:} \texttt{sphere.obj}, \textbf{depth:} 4
+\textbf{Model:} \texttt{sphere.obj}
 
 \begin{figure}[H]
     \centering
@@ -669,7 +669,7 @@ tetap relevan.
         {\small (b) Hasil voxelization}
     \end{minipage}
     \hfill
-    \begin{minipage}[c]{0.34\textwidth}
+    \begin{minipage}[c]{0.30\textwidth}
         \centering
         \small
         \begin{tabular}{lr}
@@ -687,7 +687,7 @@ tetap relevan.
             \bottomrule
         \end{tabular}
     \end{minipage}
-    \caption{Voxelization \texttt{sphere.obj} (depth 4)}
+    \caption{Voxelization \texttt{sphere.obj}}
     \label{fig:tc-sphere}
 \end{figure}
 
@@ -696,7 +696,7 @@ karena jumlah triangle input jauh lebih besar. Hal ini menunjukkan biaya SAT
 bergantung pada kompleksitas mesh sumber.
 
 \subsection{Test Case 3}
-\textbf{Model:} \texttt{cylinder.obj}, \textbf{depth:} 4
+\textbf{Model:} \texttt{cylinder.obj}
 
 \begin{figure}[H]
     \centering
@@ -712,7 +712,7 @@ bergantung pada kompleksitas mesh sumber.
         {\small (b) Hasil voxelization}
     \end{minipage}
     \hfill
-    \begin{minipage}[c]{0.34\textwidth}
+    \begin{minipage}[c]{0.30\textwidth}
         \centering
         \small
         \begin{tabular}{lr}
@@ -730,7 +730,7 @@ bergantung pada kompleksitas mesh sumber.
             \bottomrule
         \end{tabular}
     \end{minipage}
-    \caption{Voxelization \texttt{cylinder.obj} (depth 4)}
+    \caption{Voxelization \texttt{cylinder.obj}}
     \label{fig:tc-cylinder}
 \end{figure}
 
@@ -738,7 +738,7 @@ Silinder memiliki geometri lebih sederhana daripada sphere dan torus,
 sehingga menghasilkan jumlah node aktif dan waktu eksekusi yang lebih kecil.
 
 \subsection{Test Case 4}
-\textbf{Model:} \texttt{teapot.obj}, \textbf{depth:} 4
+\textbf{Model:} \texttt{teapot.obj}
 
 \begin{figure}[H]
     \centering
@@ -754,7 +754,7 @@ sehingga menghasilkan jumlah node aktif dan waktu eksekusi yang lebih kecil.
         {\small (b) Hasil voxelization}
     \end{minipage}
     \hfill
-    \begin{minipage}[c]{0.34\textwidth}
+    \begin{minipage}[c]{0.30\textwidth}
         \centering
         \small
         \begin{tabular}{lr}
@@ -772,7 +772,7 @@ sehingga menghasilkan jumlah node aktif dan waktu eksekusi yang lebih kecil.
             \bottomrule
         \end{tabular}
     \end{minipage}
-    \caption{Voxelization \texttt{teapot.obj} (depth 4)}
+    \caption{Voxelization \texttt{teapot.obj}}
     \label{fig:tc-teapot}
 \end{figure}
 
@@ -780,21 +780,23 @@ Teapot menghasilkan voxel count paling kecil pada depth yang sama,
 yang berarti distribusi permukaan objek relatif tidak memenuhi banyak sel leaf.
 
 \subsection{Test Case 5}
-\textbf{Model:} \texttt{torus.obj}, \textbf{depth:} 4
+\textbf{Model:} \texttt{torus.obj}
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{testcase/torus_bef.png}
-        \caption{Mesh awal}
-    \end{subfigure}
+    \begin{minipage}[C]{0.30\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.2cm,keepaspectratio]{testcase/torus_bef.png}\\[4pt]
+        {\small (a) Mesh awal}
+    \end{minipage}
     \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{testcase/torus_aft.png}
-        \caption{Hasil voxelization}
-    \end{subfigure}
+    \begin{minipage}[c]{0.30\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.2cm,keepaspectratio]{testcase/torus_aft.png}\\[4pt]
+        {\small (b) Hasil voxelization}
+    \end{minipage}
     \hfill
-    \begin{minipage}[b]{0.32\textwidth}
+    \begin{minipage}[c]{0.30\textwidth}
         \centering
         \small
         \begin{tabular}{lr}
@@ -812,12 +814,12 @@ yang berarti distribusi permukaan objek relatif tidak memenuhi banyak sel leaf.
             \bottomrule
         \end{tabular}
     \end{minipage}
-    \caption{Voxelization \texttt{torus.obj} (depth 4)}
+    \caption{Voxelization \texttt{torus.obj}}
     \label{fig:tc-torus}
 \end{figure}
 
 Lubang pada torus menyebabkan pemetaan voxel yang khas, yaitu
-lebih banyak voxel dibanding teapot, namun tetap lebih rendah dari cube/sphere
+lebih banyak voxel dibanding teapot, tetapi tetap lebih rendah dari cube/sphere
 karena bagian volume tengah (void) tidak menambah permukaan terisi.
 
 \subsection{Performance Summary}
@@ -857,7 +859,7 @@ Selain perbandingan antar-model, pengaruh depth juga diuji pada \texttt{cube.obj
 \end{table}
 
 Dari tabel depth terlihat bahwa penambahan resolusi meningkatkan detail,
-tetapi mendorong kenaikan jumlah node dan voxel secara sangat cepat.
+tetapi mendorong kenaikan jumlah node dan voxel secara signifikan.
 Nilai ini konsisten dengan sifat subdivisi octree ($\approx 8^d$ pada skenario terburuk),
 meskipun pruning menekan pertumbuhan aktual agar tetap jauh di bawah batas teoritis.
 
