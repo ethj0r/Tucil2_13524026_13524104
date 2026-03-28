@@ -7,7 +7,7 @@
 | Nama | NIM | GitHub | Portfolio |
 |------|-----|--------|-----------|
 | Made Branenda Jordhy | 13524026 | [ethj0r](https://github.com/ethj0r) | [ethjor.dev](https://ethjor.vercel.app) |
-| Valentino Daniel Kusumo | 13524104 | [ValentinoDanielKusumo](https://github.com/ValentinoDanielKusumo) | - |
+| Valentino Daniel Kusumo | 13524104 | [ValentinoDan](https://github.com/ValentinoDan) | - |
 
 ## Description
 
